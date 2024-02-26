@@ -3,15 +3,34 @@ package org.grp1;
 //TIP To <b>Run</b> code, press <shortcut actionId="Run"/> or
 // click the <icon src="AllIcons.Actions.Execute"/> icon in the gutter.
 public class Main {
+    private static Disk disk;
     public static void main(String[] args) {
-        //TIP Press <shortcut actionId="ShowIntentionActions"/> with your caret at the highlighted text
-        // to see how IntelliJ IDEA suggests fixing it.
-        System.out.printf("Hello and welcome!");
+        disk = new Disk();
+        runExperiment1();
+        runExperiment2();
+        runExperiment3();
+        runExperiment4();
+        runExperiment5();
+    }
 
-        for (int i = 1; i <= 5; i++) {
-            //TIP Press <shortcut actionId="Debug"/> to start debugging your code. We have set one <icon src="AllIcons.Debugger.Db_set_breakpoint"/> breakpoint
-            // for you, but you can always add more by pressing <shortcut actionId="ToggleLineBreakpoint"/>.
-            System.out.println("i = " + i);
-        }
+    public static void runExperiment1 () {
+        System.out.println("Running experiment 1");
+        System.out.println("Ending experiment 1");
+    }
+    public static void runExperiment2 () {
+        System.out.println("Running experiment 2");
+        System.out.println("Ending experiment 2");
+    }
+    public static void runExperiment3 () {
+        System.out.println("Running experiment 3");
+        System.out.println("Ending experiment 3");
+    }
+    public static void runExperiment4 () {
+        System.out.println("Running experiment 4");
+        System.out.println("Ending experiment 4");
+    }
+    public static void runExperiment5 () {
+        System.out.println("Running experiment 5");
+        System.out.println("Ending experiment 5");
     }
 }
