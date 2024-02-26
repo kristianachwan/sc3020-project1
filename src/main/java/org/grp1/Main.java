@@ -5,8 +5,8 @@ package org.grp1;
 public class Main {
     private static Disk disk;
     public static int MB = 1 << 20;
-    private static int DISK_SIZE = 100 * MB;
-    private static int BLOCK_SIZE = 200;
+    private static final int DISK_SIZE = 100 * MB;
+    private static final int BLOCK_SIZE = 200;
     public static int RECORD_SIZE = 17;
 
     public static void main(String[] args) {

@@ -1,9 +1,9 @@
 package org.grp1;
 
 public class Disk {
-    private int diskSize;
-    private int blockSize;
-    private int recordSize;
+    private final int diskSize;
+    private final int blockSize;
+    private final int recordSize;
 
     public Disk(int diskSize, int blockSize, int recordSize) {
         this.diskSize = diskSize;
