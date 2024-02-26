@@ -4,8 +4,13 @@ package org.grp1;
 // click the <icon src="AllIcons.Actions.Execute"/> icon in the gutter.
 public class Main {
     private static Disk disk;
+    public static int MB = 1 << 20;
+    private static int DISK_SIZE = 100 * MB;
+    private static int BLOCK_SIZE = 200;
+    public static int RECORD_SIZE = 17;
+
     public static void main(String[] args) {
-        disk = new Disk();
+        disk = new Disk(DISK_SIZE, BLOCK_SIZE, RECORD_SIZE);
         runExperiment1();
         runExperiment2();
         runExperiment3();
