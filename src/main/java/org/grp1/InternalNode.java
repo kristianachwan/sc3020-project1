@@ -16,7 +16,7 @@ public class InternalNode extends Node {
         this.parent = parent;
     }
 
-    public void setChildren(ArrayList<Integer>, ArrayList<Node> children) {
+    public void setChildren(ArrayList<Integer> keys, ArrayList<Node> children) {
         this.keys = keys;
         this.children = children;
     }
