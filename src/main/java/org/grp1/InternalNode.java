@@ -1,11 +1,13 @@
 package org.grp1;
 
+import java.util.ArrayList;
+
 public class InternalNode extends Node {
-    int[] keys;
-    private Node[] children;
+    private ArrayList<Integer> keys;
+    private ArrayList<Node> children;
     private InternalNode parent;
 
-    public InternalNode(int[] keys, Node[] children) {
+    public InternalNode(ArrayList<Integer> keys, ArrayList<Node> children) {
         this.keys = keys;
         this.children = children;
     }
@@ -14,19 +16,19 @@ public class InternalNode extends Node {
         this.parent = parent;
     }
 
-    public void setChildren(int[] keys, Node[] children) {
+    public void setChildren(ArrayList<Integer>, ArrayList<Node> children) {
         this.keys = keys;
         this.children = children;
     }
 
     public int getChildIndex(int key) {
-        for (int i = 0; i < keys.length; i++) {
-            if (key < keys[i]) {
+        for (int i = 0; i < keys.size(); i++) {
+            if (key < keys.get(i)) {
                 return i;
             }
         }
 
-        return keys.length;
+        return children.size() - 1;
     }
 
 }

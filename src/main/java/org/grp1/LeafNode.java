@@ -1,8 +1,10 @@
 package org.grp1;
 
+import java.util.ArrayList;
+
 public class LeafNode extends Node {
-    private int[] keys;
-    private Record[] records;
+    private ArrayList<Integer> keys;
+    private ArrayList<Record> records;
     private InternalNode parent;
     private LeafNode previous;
     private LeafNode next;
@@ -13,7 +15,7 @@ public class LeafNode extends Node {
         this.parent = parent;
     }
 
-    public LeafNode(LeafNode previous, LeafNode next, InternalNode parent, int[] keys, Record[] records) {
+    public LeafNode(LeafNode previous, LeafNode next, InternalNode parent, ArrayList<Integer> keys, ArrayList<Record> records) {
         this.previous = previous;
         this.next = next;
         this.parent = parent;
@@ -33,14 +35,14 @@ public class LeafNode extends Node {
         this.parent = parent;
     }
 
-    public void setRecords(int[] keys, Record[] records) {
+    public void setRecords(ArrayList<Integer> keys, ArrayList<Record> records) {
         this.keys = keys;
         this.records = records;
     }
 
     public int getRecordIndex(int key) {
-        for (int i = 0; i < records.length; i++) {
-            if (key == keys[i]) {
+        for (int i = 0; i < records.size(); i++) {
+            if (key == keys.get(i)) {
                 return i;
             }
         }
@@ -53,6 +55,6 @@ public class LeafNode extends Node {
             return null;
         }
 
-        return records[recordIndex];
+        return records.get(recordIndex);
     }
 }
