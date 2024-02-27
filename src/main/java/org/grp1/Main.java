@@ -11,6 +11,7 @@ public class Main {
     private static Disk disk;
 
     public static void main(String[] args) {
+        System.out.println("Setting up the disk...");
         disk = new Disk(DISK_SIZE, BLOCK_SIZE, RECORD_SIZE, DATA_FILE_PATH);
         runExperiment1();
         runExperiment2();
@@ -21,6 +22,10 @@ public class Main {
 
     public static void runExperiment1() {
         System.out.println("Running experiment 1");
+        System.out.println("Number of records: " + disk.getNumberOfRecords());
+        System.out.println("Size of a record: " + RECORD_SIZE);
+        System.out.println("Number of records in a block: " + disk.getNumberOfRecordsInBlock());
+        System.out.println("Number of blocks: " + disk.getNumberOfBlocks());
         System.out.println("Ending experiment 1");
     }
 

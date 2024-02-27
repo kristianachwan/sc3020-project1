@@ -21,23 +21,29 @@ public class Disk {
     }
 
     public ArrayList<Block> getBlocksFromTSV(String dataFilePath) {
-        ArrayList<Record> records = getRecordsFromTSV(dataFilePath);
         ArrayList<Block> blocks = new ArrayList<>();
-        return blocks;
-    }
-
-    public ArrayList<Record> getRecordsFromTSV(String dataFilePath) {
-        ArrayList<Record> records = new ArrayList<>();
-
         try {
             BufferedReader reader = new BufferedReader(new FileReader(dataFilePath));
             reader.readLine();
-
             String line;
-            while (!(line = reader.readLine()).isEmpty()) {
-                String[] recordValues = line.split("\\s+");
-                records.add(new Record(recordValues[0], Float.parseFloat(recordValues[1]), Integer.parseInt(recordValues[2])));
-            }
+
+            do {
+                int count = 0;
+                ArrayList<Record> blockRecords = new ArrayList<>();
+                while ((line = reader.readLine()) != null) {
+                    String[] recordValues = line.split("\\s+");
+                    blockRecords.add(new Record(recordValues[0], Float.parseFloat(recordValues[1]), Integer.parseInt(recordValues[2])));
+                    count++;
+                    if (count == this.getNumberOfRecordsInBlock()) {
+                        break;
+                    }
+                }
+
+                if (!blockRecords.isEmpty()) {
+                    blocks.add(new Block(blockRecords));
+                }
+
+            } while (line != null);
 
             reader.close();
         } catch (FileNotFoundException e) {
@@ -48,8 +54,30 @@ public class Disk {
             System.out.println("Error while reading TSV");
         }
 
-        return records;
+        return blocks;
     }
 
+    public int getNumberOfRecordsInBlock() {
+        return blockSize / recordSize;
+    }
+
+    public void getDiskInformation() {
+        System.out.println("Disk size: " + this.diskSize + "MB");
+        System.out.println("Block size: " + this.blockSize);
+        System.out.println("Record size: " + this.recordSize);
+    }
+
+    public int getNumberOfRecords() {
+        int numberOfRecords = 0;
+        for (Block block : this.blocks) {
+            numberOfRecords += block.getNumberOfRecords();
+        }
+
+        return numberOfRecords;
+    }
+
+    public int getNumberOfBlocks() {
+        return this.blocks.size();
+    }
 
 }
