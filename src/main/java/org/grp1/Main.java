@@ -22,10 +22,7 @@ public class Main {
 
     public static void runExperiment1() {
         System.out.println("Running experiment 1");
-        System.out.println("Number of records: " + disk.getNumberOfRecords());
-        System.out.println("Size of a record: " + RECORD_SIZE);
-        System.out.println("Number of records in a block: " + disk.getNumberOfRecordsInBlock());
-        System.out.println("Number of blocks: " + disk.getNumberOfBlocks());
+        disk.printDiskInformation();
         System.out.println("Ending experiment 1");
     }
 

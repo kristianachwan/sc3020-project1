@@ -61,10 +61,11 @@ public class Disk {
         return blockSize / recordSize;
     }
 
-    public void getDiskInformation() {
-        System.out.println("Disk size: " + this.diskSize + "MB");
-        System.out.println("Block size: " + this.blockSize);
-        System.out.println("Record size: " + this.recordSize);
+    public void printDiskInformation() {
+        System.out.println("Number of records: " + this.getNumberOfRecords());
+        System.out.println("Size of a record: " + recordSize);
+        System.out.println("Number of records in a block: " + this.getNumberOfRecordsInBlock());
+        System.out.println("Number of blocks: " + this.getNumberOfBlocks());
     }
 
     public int getNumberOfRecords() {
