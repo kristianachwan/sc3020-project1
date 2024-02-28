@@ -2,6 +2,8 @@ package org.grp1;
 
 import java.util.ArrayList;
 
+import org.grp1.model.Record;
+
 public class LeafNode extends Node {
     private ArrayList<Integer> keys;
     private ArrayList<Record> records;

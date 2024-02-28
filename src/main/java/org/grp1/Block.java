@@ -1,11 +1,12 @@
 package org.grp1;
 
-import java.util.ArrayList;
+import java.util.List;
 
-public class Block {
-    private final ArrayList<Record> records;
+public class Block<T> {
 
-    public Block(ArrayList<Record> records) {
+    private final List<T> records;
+
+    public Block(List<T> records) {
         this.records = records;
     }
 

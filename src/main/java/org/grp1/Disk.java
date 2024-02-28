@@ -5,12 +5,13 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.List;
 
 public class Disk {
     private final int diskSize;
     private final int blockSize;
     private final int recordSize;
-    private final ArrayList<Block> blocks;
+    private final List<Block> blocks;
     private String dataFilePath;
 
     public Disk(int diskSize, int blockSize, int recordSize, String dataFilePath) {
@@ -20,8 +21,9 @@ public class Disk {
         this.blocks = getBlocksFromTSV(dataFilePath);
     }
 
-    public ArrayList<Block> getBlocksFromTSV(String dataFilePath) {
-        ArrayList<Block> blocks = new ArrayList<>();
+    public List<Block> getBlocksFromTSV(String dataFilePath) {
+
+        List<Block> blocks = new ArrayList<>();
         try {
             BufferedReader reader = new BufferedReader(new FileReader(dataFilePath));
             reader.readLine();
