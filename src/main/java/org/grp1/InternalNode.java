@@ -1,13 +1,13 @@
 package org.grp1;
 
-import java.util.ArrayList;
+import java.util.List;
 
 public class InternalNode extends Node {
-    private ArrayList<Integer> keys;
-    private ArrayList<Node> children;
+    private List<Integer> keys;
+    private List<Node> children;
     private InternalNode parent;
 
-    public InternalNode(ArrayList<Integer> keys, ArrayList<Node> children) {
+    public InternalNode(List<Integer> keys, List<Node> children) {
         this.keys = keys;
         this.children = children;
     }
@@ -16,7 +16,7 @@ public class InternalNode extends Node {
         this.parent = parent;
     }
 
-    public void setChildren(ArrayList<Integer> keys, ArrayList<Node> children) {
+    public void setChildren(List<Integer> keys, List<Node> children) {
         this.keys = keys;
         this.children = children;
     }

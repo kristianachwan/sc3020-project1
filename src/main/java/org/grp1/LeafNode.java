@@ -1,12 +1,13 @@
 package org.grp1;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import org.grp1.model.Record;
 
 public class LeafNode extends Node {
-    private ArrayList<Integer> keys;
-    private ArrayList<Record> records;
+    private List<Integer> keys;
+    private List<Record> records;
     private InternalNode parent;
     private LeafNode previous;
     private LeafNode next;
@@ -17,7 +18,7 @@ public class LeafNode extends Node {
         this.parent = parent;
     }
 
-    public LeafNode(LeafNode previous, LeafNode next, InternalNode parent, ArrayList<Integer> keys, ArrayList<Record> records) {
+    public LeafNode(LeafNode previous, LeafNode next, InternalNode parent, List<Integer> keys, List<Record> records) {
         this.previous = previous;
         this.next = next;
         this.parent = parent;
