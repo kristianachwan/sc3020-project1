@@ -1,4 +1,4 @@
-package disk;
+package org.grp1.storage;
 
 import org.grp1.constant.ErrorMessage;
 import org.grp1.exception.BlockFullException;

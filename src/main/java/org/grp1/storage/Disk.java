@@ -1,4 +1,4 @@
-package storage;
+package org.grp1.storage;
 
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;
