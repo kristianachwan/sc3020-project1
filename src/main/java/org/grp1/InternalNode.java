@@ -44,6 +44,9 @@ public class InternalNode extends Node {
             if (key < keys.get(i)) {
                 return i;
             }
+            if (key == keys.get(i)) {
+                return i + 1;
+            }
         }
 
         return children.size() - 1;
