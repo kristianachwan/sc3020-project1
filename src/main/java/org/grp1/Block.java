@@ -12,4 +12,8 @@ public class Block {
     public int getNumberOfRecords() {
         return this.records.size();
     }
+
+    public Record getRecord(int index) {
+        return records.get(index);
+    }
 }
