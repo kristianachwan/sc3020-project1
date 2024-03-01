@@ -32,10 +32,6 @@ public class LeafNode extends Node {
         this.previous = previous;
     }
 
-    public void setNext(LeafNode next) {
-        this.next = next;
-    }
-
     public void setParent(InternalNode parent) {
         this.parent = parent;
     }
@@ -45,6 +41,18 @@ public class LeafNode extends Node {
         this.records = records;
     }
 
+    public LeafNode getNext() {
+        return this.next;
+    }
+
+    public void setNext(LeafNode next) {
+        this.next = next;
+    }
+
+    public ArrayList<Integer> getKeys() {
+        return keys;
+    }
+
     public int getRecordIndex(int key) {
         for (int i = 0; i < records.size(); i++) {
             if (key == keys.get(i)) {
@@ -52,6 +60,10 @@ public class LeafNode extends Node {
             }
         }
         return -1;
+    }
+
+    public Record getRecordByIndex(int index) {
+        return this.records.get(index);
     }
 
     public Record getRecord(int key) {
