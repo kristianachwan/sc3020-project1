@@ -5,6 +5,14 @@ import java.util.ArrayList;
 public class BPlusTree {
     InternalNode sentinelNode = new InternalNode(new ArrayList<>(), new ArrayList<>());
 
+    private int getNodeFirstKey(Node node) {
+        if (node instanceof LeafNode) {
+            return ((LeafNode) node).getRecord(0).getNumVotes();
+        } else {
+            return ((InternalNode) node).getKeys().get(0);
+        }
+    }
+
     public Record getRecordByNumVotes(int numVotes) {
         Node node = getRoot();
         if (node == null) {
@@ -73,55 +81,52 @@ public class BPlusTree {
 
             Node newNode = recursiveInsertNode(child, newRecord);
 
-            if (newNode != null && internalNode.isFull()) {
-                // must insert new node at childIndex + 1
-                // assuming n + 1 childs
-                // then we must split child with size upb ((n+2)/2) => n+3 // 2 => n+1//2 + 1
-                // [0..n+1//2 + 1) and [n+1//2 + 1..n+2)
+            if (newNode != null) {
+                int newNodeKey = getNodeFirstKey(newNode);
+                if (internalNode.isFull()) {
+                    // must insert new node at childIndex + 1
+                    // assuming n + 1 childs
+                    // then we must split child with size upb ((n+2)/2) => n+3 // 2 => n+1//2 + 1
+                    // [0..n+1//2 + 1) and [n+1//2 + 1..n+2)
 
-                ArrayList<Node> newNodeList;
-                ArrayList<Integer> newKeyList;
-                InternalNode newSiblingInternalNode;
+                    ArrayList<Node> newNodeList;
+                    ArrayList<Integer> newKeyList;
+                    InternalNode newSiblingInternalNode;
 
-                if (childIndex + 1 <= (internalNode.size() + 1) / 2) {
-                    // split at n + 1//2 because newNode belongs to left
-                    newNodeList = internalNode.splitChildrenList((internalNode.size() + 1) / 2);
-                    newKeyList = internalNode.splitKeyList((internalNode.size() + 1) / 2 - 1);
+                    if (childIndex + 1 <= (internalNode.size() + 1) / 2) {
+                        // split at n + 1//2 because newNode belongs to left
+                        newNodeList = internalNode.splitChildrenList((internalNode.size() + 1) / 2);
+                        newKeyList = internalNode.splitKeyList((internalNode.size() + 1) / 2 - 1);
 
-                    newKeyList.remove(0);
+                        newKeyList.remove(0);
 
-                    newSiblingInternalNode = new InternalNode(newKeyList, newNodeList);
+                        newSiblingInternalNode = new InternalNode(newKeyList, newNodeList);
 
-                    // modify old internal node
-                    int newNodeKey;
-                    if (newNode instanceof LeafNode) {
-                        newNodeKey = ((LeafNode) newNode).getRecord(0).getNumVotes();
+                        // modify old internal node
+                        internalNode.insertNode(newNode, newNodeKey);
+
+
                     } else {
-                        newNodeKey = ((InternalNode) newNode).getKeys().get(0);
+                        // split at n + 1//2 + 1 because newNode belongs to right
+                        newNodeList = internalNode.splitChildrenList((internalNode.size() + 1) / 2 + 1);
+                        newKeyList = internalNode.splitKeyList((internalNode.size() + 1) / 2);
+
+                        newKeyList.remove(0);
+
+                        newSiblingInternalNode = new InternalNode(newKeyList, newNodeList);
+
+                        newSiblingInternalNode.insertNode(newNode, newNodeKey);
                     }
-
-                    internalNode.insertNode(newNode, newNodeKey);
-
-
+                    return newSiblingInternalNode;
                 } else {
-                    // split at n + 1//2 + 1 because newNode belongs to right
-                    newNodeList = internalNode.splitChildrenList((internalNode.size() + 1) / 2 + 1);
-                    newKeyList = internalNode.splitKeyList((internalNode.size() + 1) / 2);
-
-                    newKeyList.remove(0);
-
-                    newSiblingInternalNode = new InternalNode(newKeyList, newNodeList);
-
-                    int newNodeKey;
-                    if (newNode instanceof LeafNode) {
-                        newNodeKey = ((LeafNode) newNode).getRecord(0).getNumVotes();
-                    } else {
-                        newNodeKey = ((InternalNode) newNode).getKeys().get(0);
-                    }
-
-                    newSiblingInternalNode.insertNode(newNode, newNodeKey);
+                    internalNode.insertNode(newNode, newNodeKey);
                 }
-                return newSiblingInternalNode;
+
+                if (newNode instanceof LeafNode) {
+                    newNode.setParent(internalNode);
+                } else {
+                    newNode.setParent(internalNode);
+                }
             }
 
         }
@@ -143,12 +148,42 @@ public class BPlusTree {
             sentinelKeyList.add(Integer.valueOf(69));
             sentinelNodeList.add(newNode);
 
+
             sentinelNode.setChildren(sentinelKeyList, sentinelNodeList);
 
             root = newNode;
         }
 
-        recursiveInsertNode(root, newRecord);
+        Node newNode = recursiveInsertNode(root, newRecord);
+
+        if (newNode != null) {
+            // Root node is split into two
+            ArrayList<Node> nodeList = new ArrayList<Node>();
+            ArrayList<Integer> keyList = new ArrayList<Integer>();
+
+            nodeList.add(root);
+            nodeList.add(newNode);
+
+            keyList.add(getNodeFirstKey(root));
+            keyList.add(getNodeFirstKey(newNode));
+
+            InternalNode newRoot = new InternalNode(keyList, nodeList);
+
+            root.setParent(newRoot);
+            newNode.setParent(newRoot);
+
+            root = newRoot;
+
+            // Create new sentinel
+
+            ArrayList<Node> sentinelNodeList = new ArrayList<Node>();
+            ArrayList<Integer> sentinelKeyList = new ArrayList<Integer>();
+
+            sentinelNodeList.add(root);
+            sentinelKeyList.add(0);
+
+            this.sentinelNode.setChildren(sentinelKeyList, sentinelNodeList);
+        }
 
 
     }
