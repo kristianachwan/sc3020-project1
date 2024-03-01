@@ -4,4 +4,6 @@ public abstract class Node {
 
     abstract public boolean isFull();
 
+    abstract public void setParent(InternalNode node);
+
 }
