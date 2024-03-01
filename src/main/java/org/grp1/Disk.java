@@ -1,34 +1,27 @@
-package org.grp1.storage;
+package org.grp1;
 
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.List;
-
-import org.grp1.model.Record;
 
 public class Disk {
-
-    private int numOfRecord;
-
     private final int diskSize;
     private final int blockSize;
     private final int recordSize;
-    private final List<Block<?>> blocks;
+    private final ArrayList<Block> blocks;
+    private String dataFilePath;
 
-    public Disk(int diskSize, int blockSize, int recordSize) {
-        numOfRecord = 0;
+    public Disk(int diskSize, int blockSize, int recordSize, String dataFilePath) {
         this.diskSize = diskSize;
         this.blockSize = blockSize;
         this.recordSize = recordSize;
-        this.blocks = new ArrayList<>();
+        this.blocks = getBlocksFromTSV(dataFilePath);
     }
 
-    /*public List<Block<?>> getBlocksFromTSV(String dataFilePath) {
-
-        List<Block<?>> blocks = new ArrayList<>();
+    public ArrayList<Block> getBlocksFromTSV(String dataFilePath) {
+        ArrayList<Block> blocks = new ArrayList<>();
         try {
             BufferedReader reader = new BufferedReader(new FileReader(dataFilePath));
             reader.readLine();
@@ -62,21 +55,26 @@ public class Disk {
         }
 
         return blocks;
-    }*/
+    }
 
-    private int getMaxNumberOfRecordsInBlock() {
+    public int getNumberOfRecordsInBlock() {
         return blockSize / recordSize;
     }
 
     public void printDiskInformation() {
         System.out.println("Number of records: " + this.getNumberOfRecords());
         System.out.println("Size of a record: " + recordSize);
-        System.out.println("Number of records in a block: " + this.getMaxNumberOfRecordsInBlock());
+        System.out.println("Number of records in a block: " + this.getNumberOfRecordsInBlock());
         System.out.println("Number of blocks: " + this.getNumberOfBlocks());
     }
 
     public int getNumberOfRecords() {
-        return this.numOfRecord;
+        int numberOfRecords = 0;
+        for (Block block : this.blocks) {
+            numberOfRecords += block.getNumberOfRecords();
+        }
+
+        return numberOfRecords;
     }
 
     public int getNumberOfBlocks() {

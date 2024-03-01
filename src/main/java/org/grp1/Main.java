@@ -1,7 +1,5 @@
 package org.grp1;
 
-import org.grp1.storage.Disk;
-
 //TIP To <b>Run</b> code, press <shortcut actionId="Run"/> or
 // click the <icon src="AllIcons.Actions.Execute"/> icon in the gutter.
 public class Main {
@@ -14,7 +12,7 @@ public class Main {
 
     public static void main(String[] args) {
         System.out.println("Setting up the disk...");
-        disk = new Disk(DISK_SIZE, BLOCK_SIZE, RECORD_SIZE);
+        disk = new Disk(DISK_SIZE, BLOCK_SIZE, RECORD_SIZE, DATA_FILE_PATH);
         runExperiment1();
         runExperiment2();
         runExperiment3();

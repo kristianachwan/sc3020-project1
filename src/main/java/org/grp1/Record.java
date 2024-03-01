@@ -1,4 +1,4 @@
-package org.grp1.model;
+package org.grp1;
 
 public class Record {
     private String tconst;
