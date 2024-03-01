@@ -13,8 +13,12 @@ public class InternalNode extends Node {
         this.children = children;
     }
 
-    private boolean isFull() {
+    public boolean isFull() {
         return maxNumOfKeys == this.keys.size();
+    }
+
+    public int size() {
+        return this.keys.size();
     }
 
     public ArrayList<Integer> getKeys() {
@@ -47,6 +51,37 @@ public class InternalNode extends Node {
         }
 
         return children.size() - 1;
+    }
+
+    public void insertNode(Node newNode, int key) {
+        if (isFull()) {
+            throw new Error("Inserted a record in a full node");
+        }
+
+        int newIndex = getChildIndex(key);
+
+        keys.add(newIndex, key);
+        children.add(newIndex, newNode);
+    }
+
+    public ArrayList<Node> splitChildrenList(int x) {
+        // [0..x) and returns [x..n)
+        ArrayList<Node> left = new ArrayList<Node>(children.subList(0, x));
+        ArrayList<Node> right = new ArrayList<Node>(children.subList(x, children.size()));
+
+        children = left;
+
+        return right;
+    }
+
+    public ArrayList<Integer> splitKeyList(int x) {
+        // [0..x) and returns [x..n)
+        ArrayList<Integer> left = new ArrayList<Integer>(keys.subList(0, x));
+        ArrayList<Integer> right = new ArrayList<Integer>(keys.subList(x, keys.size()));
+
+        keys = left;
+
+        return right;
     }
 
 }
