@@ -6,10 +6,19 @@ public class InternalNode extends Node {
     private ArrayList<Integer> keys;
     private ArrayList<Node> children;
     private InternalNode parent;
+    private int maxNumOfKeys;
 
     public InternalNode(ArrayList<Integer> keys, ArrayList<Node> children) {
         this.keys = keys;
         this.children = children;
+    }
+
+    private boolean isFull() {
+        return maxNumOfKeys == children.size();
+    }
+
+    public ArrayList<Node> getChildren() {
+        return this.children;
     }
 
     public void setParent(InternalNode parent) {

@@ -8,6 +8,11 @@ public class LeafNode extends Node {
     private InternalNode parent;
     private LeafNode previous;
     private LeafNode next;
+    private int maxNumOfKeys;
+
+    private isFull() {
+        return maxNumOfKeys == keys.
+    }
 
     public LeafNode(LeafNode previous, LeafNode next, InternalNode parent) {
         this.previous = previous;
