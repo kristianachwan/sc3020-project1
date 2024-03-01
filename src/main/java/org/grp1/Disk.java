@@ -81,4 +81,8 @@ public class Disk {
         return this.blocks.size();
     }
 
+    public Block getBlock(int index) {
+        return blocks.get(index);
+    }
+
 }
