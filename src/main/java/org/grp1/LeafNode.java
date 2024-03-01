@@ -10,10 +10,6 @@ public class LeafNode extends Node {
     private LeafNode next;
     private int maxNumOfKeys;
 
-    private isFull() {
-        return maxNumOfKeys == keys.
-    }
-
     public LeafNode(LeafNode previous, LeafNode next, InternalNode parent) {
         this.previous = previous;
         this.next = next;
@@ -26,6 +22,10 @@ public class LeafNode extends Node {
         this.parent = parent;
         this.keys = keys;
         this.records = records;
+    }
+
+    private boolean isFull() {
+        return maxNumOfKeys == this.keys.size();
     }
 
     public void setPrevious(LeafNode previous) {

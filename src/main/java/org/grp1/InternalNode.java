@@ -14,12 +14,17 @@ public class InternalNode extends Node {
     }
 
     private boolean isFull() {
-        return maxNumOfKeys == children.size();
+        return maxNumOfKeys == this.keys.size();
+    }
+
+    public ArrayList<Integer> getKeys() {
+        return this.keys;
     }
 
     public ArrayList<Node> getChildren() {
         return this.children;
     }
+
 
     public void setParent(InternalNode parent) {
         this.parent = parent;
@@ -28,6 +33,10 @@ public class InternalNode extends Node {
     public void setChildren(ArrayList<Integer> keys, ArrayList<Node> children) {
         this.keys = keys;
         this.children = children;
+    }
+
+    public Node getChild(int key) {
+        return this.children.get(getChildIndex(key));
     }
 
     public int getChildIndex(int key) {
