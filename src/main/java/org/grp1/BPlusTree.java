@@ -3,11 +3,17 @@ package org.grp1;
 import java.util.ArrayList;
 
 public class BPlusTree {
-    InternalNode sentinelNode = new InternalNode(new ArrayList<>(), new ArrayList<>());
+    private final int maxKeyNumber;
+    private final InternalNode sentinelNode;
+
+    public BPlusTree(int maxKeyNumber) {
+        this.maxKeyNumber = maxKeyNumber;
+        this.sentinelNode = new InternalNode(new ArrayList<>(), new ArrayList<>(), this.maxKeyNumber);
+    }
 
     private int getNodeFirstKey(Node node) {
         if (node instanceof LeafNode) {
-            return ((LeafNode) node).getRecord(0).getNumVotes();
+            return ((LeafNode) node).getRecordByIndex(0).getNumVotes();
         } else {
             return ((InternalNode) node).getKeys().get(0);
         }
@@ -100,18 +106,16 @@ public class BPlusTree {
         if (node instanceof LeafNode leafNode) {
             // It is the leafNode a.k.a. the base case
             if (leafNode.isFull()) {
-                // Split and returns a new leaf node
-                // Why n/2? upper bound((n+1)/2) - 1 = (n+1 + 1)//2 - 1 = n//2
+
 
                 int idx = leafNode.getRecordIndexLowerBound(newRecord.getNumVotes());
 
-                // New record belongs to the original index
-                // Then we shall remove the last (n+1)//2 elements
-                ArrayList<Record> newRecordList = leafNode.splitRecordList(leafNode.size() / 2 + (idx <= leafNode.size() / 2 ? 1 : 0));
-                ArrayList<Integer> newKeyList = leafNode.splitKeyList(leafNode.size() / 2 + (idx <= leafNode.size() / 2 ? 1 : 0));
+                // n + 1
+                // if split at (n+2)//2 => n//2 + 1
+                ArrayList<Record> newRecordList = leafNode.splitRecordList((leafNode.size() + 2) / 2 + (idx <= leafNode.size() / 2 ? -1 : 0));
+                ArrayList<Integer> newKeyList = leafNode.splitKeyList((leafNode.size() + 2) / 2 + (idx <= leafNode.size() / 2 ? -1 : 0));
 
-                // yo ndak tau parentnya ya bikin null dulu ngentot
-                LeafNode newLeafNode = new LeafNode(leafNode, leafNode.getNext(), null, newKeyList, newRecordList);
+                LeafNode newLeafNode = new LeafNode(leafNode, leafNode.getNext(), null, newKeyList, newRecordList, this.maxKeyNumber);
 
                 // Modify the old leafnode
                 if (leafNode.getNext() != null) {
@@ -142,37 +146,21 @@ public class BPlusTree {
             if (newNode != null) {
                 int newNodeKey = getNodeFirstKey(newNode);
                 if (internalNode.isFull()) {
-                    // must insert new node at childIndex + 1
-                    // assuming n + 1 childs
-                    // then we must split child with size upb ((n+2)/2) => n+3 // 2 => n+1//2 + 1
-                    // [0..n+1//2 + 1) and [n+1//2 + 1..n+2)
 
                     ArrayList<Node> newNodeList;
                     ArrayList<Integer> newKeyList;
                     InternalNode newSiblingInternalNode;
 
-                    if (childIndex + 1 <= (internalNode.size() + 1) / 2) {
-                        // split at n + 1//2 because newNode belongs to left
-                        newNodeList = internalNode.splitChildrenList((internalNode.size() + 1) / 2);
-                        newKeyList = internalNode.splitKeyList((internalNode.size() + 1) / 2 - 1);
+                    newNodeList = internalNode.splitChildrenList((internalNode.size() + 2) / 2 + (childIndex + 1 <= (internalNode.size() + 2) / 2 ? -1 : 0));
+                    newKeyList = internalNode.splitKeyList((internalNode.size() + 2) / 2 - 1 + (childIndex + 1 <= (internalNode.size() + 2) / 2 ? -1 : 0));
 
-                        newKeyList.remove(0);
+                    newKeyList.remove(0);
 
-                        newSiblingInternalNode = new InternalNode(newKeyList, newNodeList);
+                    newSiblingInternalNode = new InternalNode(newKeyList, newNodeList, this.maxKeyNumber);
 
-                        // modify old internal node
+                    if (childIndex + 1 <= (internalNode.size() + 2) / 2) {
                         internalNode.insertNode(newNode, newNodeKey);
-
-
                     } else {
-                        // split at n + 1//2 + 1 because newNode belongs to right
-                        newNodeList = internalNode.splitChildrenList((internalNode.size() + 1) / 2 + 1);
-                        newKeyList = internalNode.splitKeyList((internalNode.size() + 1) / 2);
-
-                        newKeyList.remove(0);
-
-                        newSiblingInternalNode = new InternalNode(newKeyList, newNodeList);
-
                         newSiblingInternalNode.insertNode(newNode, newNodeKey);
                     }
                     return newSiblingInternalNode;
@@ -198,12 +186,12 @@ public class BPlusTree {
 
         if (root == null) {
             // Creates a leaf node
-            LeafNode newNode = new LeafNode(null, null, sentinelNode);
+            LeafNode newNode = new LeafNode(null, null, sentinelNode, this.maxKeyNumber);
             ArrayList<Integer> sentinelKeyList = new ArrayList<Integer>();
             ArrayList<Node> sentinelNodeList = new ArrayList<Node>();
 
 
-            sentinelKeyList.add(Integer.valueOf(69));
+            sentinelKeyList.add(0);
             sentinelNodeList.add(newNode);
 
 
@@ -225,7 +213,7 @@ public class BPlusTree {
             keyList.add(getNodeFirstKey(root));
             keyList.add(getNodeFirstKey(newNode));
 
-            InternalNode newRoot = new InternalNode(keyList, nodeList);
+            InternalNode newRoot = new InternalNode(keyList, nodeList, this.maxKeyNumber);
 
             root.setParent(newRoot);
             newNode.setParent(newRoot);

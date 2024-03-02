@@ -4,25 +4,29 @@ import java.util.ArrayList;
 
 
 public class LeafNode extends Node {
+    private final int maxNumOfKeys;
     private ArrayList<Integer> keys;
     private ArrayList<Record> records;
     private InternalNode parent;
     private LeafNode previous;
     private LeafNode next;
-    private int maxNumOfKeys;
 
-    public LeafNode(LeafNode previous, LeafNode next, InternalNode parent) {
+    public LeafNode(LeafNode previous, LeafNode next, InternalNode parent, int maxNumOfKeys) {
         this.previous = previous;
         this.next = next;
         this.parent = parent;
+        this.maxNumOfKeys = maxNumOfKeys;
+        this.keys = new ArrayList<Integer>();
+        this.records = new ArrayList<Record>();
     }
 
-    public LeafNode(LeafNode previous, LeafNode next, InternalNode parent, ArrayList<Integer> keys, ArrayList<Record> records) {
+    public LeafNode(LeafNode previous, LeafNode next, InternalNode parent, ArrayList<Integer> keys, ArrayList<Record> records, int maxNumOfKeys) {
         this.previous = previous;
         this.next = next;
         this.parent = parent;
         this.keys = keys;
         this.records = records;
+        this.maxNumOfKeys = maxNumOfKeys;
     }
 
     public boolean isFull() {
@@ -93,6 +97,10 @@ public class LeafNode extends Node {
         }
 
         return records.get(recordIndex);
+    }
+
+    public Record getRecordByIndex(int index) {
+        return records.get(index);
     }
 
     public LeafNode getNext() {
