@@ -3,14 +3,15 @@ package org.grp1;
 import java.util.ArrayList;
 
 public class InternalNode extends Node {
+    private final int maxNumOfKeys;
     private ArrayList<Integer> keys;
     private ArrayList<Node> children;
     private InternalNode parent;
-    private int maxNumOfKeys;
 
-    public InternalNode(ArrayList<Integer> keys, ArrayList<Node> children) {
+    public InternalNode(ArrayList<Integer> keys, ArrayList<Node> children, int maxNumOfKeys) {
         this.keys = keys;
         this.children = children;
+        this.maxNumOfKeys = maxNumOfKeys;
     }
 
     public boolean isFull() {
