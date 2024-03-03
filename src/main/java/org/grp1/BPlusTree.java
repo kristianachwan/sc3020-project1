@@ -1,6 +1,8 @@
 package org.grp1;
 
+import org.grp1.model.Record;
 import java.util.ArrayList;
+import java.util.List;
 
 public class BPlusTree {
     private final int maxKeyNumber;
@@ -34,7 +36,7 @@ public class BPlusTree {
     }
 
     public Node getRoot() {
-        ArrayList<Node> children = sentinelNode.getChildren();
+        List<Node> children = sentinelNode.getChildren();
         if (children.isEmpty()) {
             return null;
         }
@@ -54,8 +56,8 @@ public class BPlusTree {
 
                 // n + 1
                 // if split at (n+2)//2 => n//2 + 1
-                ArrayList<Record> newRecordList = leafNode.splitRecordList((leafNode.size() + 2) / 2 + (idx <= leafNode.size() / 2 ? -1 : 0));
-                ArrayList<Integer> newKeyList = leafNode.splitKeyList((leafNode.size() + 2) / 2 + (idx <= leafNode.size() / 2 ? -1 : 0));
+                List<Record> newRecordList = leafNode.splitRecordList((leafNode.size() + 2) / 2 + (idx <= leafNode.size() / 2 ? -1 : 0));
+                List<Integer> newKeyList = leafNode.splitKeyList((leafNode.size() + 2) / 2 + (idx <= leafNode.size() / 2 ? -1 : 0));
 
                 LeafNode newLeafNode = new LeafNode(leafNode, leafNode.getNext(), null, newKeyList, newRecordList, this.maxKeyNumber);
 
@@ -89,8 +91,8 @@ public class BPlusTree {
                 int newNodeKey = getNodeFirstKey(newNode);
                 if (internalNode.isFull()) {
 
-                    ArrayList<Node> newNodeList;
-                    ArrayList<Integer> newKeyList;
+                    List<Node> newNodeList;
+                    List<Integer> newKeyList;
                     InternalNode newSiblingInternalNode;
 
                     newNodeList = internalNode.splitChildrenList((internalNode.size() + 2) / 2 + (childIndex + 1 <= (internalNode.size() + 2) / 2 ? -1 : 0));
@@ -129,8 +131,8 @@ public class BPlusTree {
         if (root == null) {
             // Creates a leaf node
             LeafNode newNode = new LeafNode(null, null, sentinelNode, this.maxKeyNumber);
-            ArrayList<Integer> sentinelKeyList = new ArrayList<Integer>();
-            ArrayList<Node> sentinelNodeList = new ArrayList<Node>();
+            List<Integer> sentinelKeyList = new ArrayList<Integer>();
+            List<Node> sentinelNodeList = new ArrayList<Node>();
 
 
             sentinelKeyList.add(0);
@@ -146,8 +148,8 @@ public class BPlusTree {
 
         if (newNode != null) {
             // Root node is split into two
-            ArrayList<Node> nodeList = new ArrayList<Node>();
-            ArrayList<Integer> keyList = new ArrayList<Integer>();
+            List<Node> nodeList = new ArrayList<Node>();
+            List<Integer> keyList = new ArrayList<Integer>();
 
             nodeList.add(root);
             nodeList.add(newNode);
@@ -164,8 +166,8 @@ public class BPlusTree {
 
             // Create new sentinel
 
-            ArrayList<Node> sentinelNodeList = new ArrayList<Node>();
-            ArrayList<Integer> sentinelKeyList = new ArrayList<Integer>();
+            List<Node> sentinelNodeList = new ArrayList<Node>();
+            List<Integer> sentinelKeyList = new ArrayList<Integer>();
 
             sentinelNodeList.add(root);
             sentinelKeyList.add(0);

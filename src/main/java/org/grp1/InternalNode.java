@@ -1,14 +1,15 @@
 package org.grp1;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class InternalNode extends Node {
     private final int maxNumOfKeys;
-    private ArrayList<Integer> keys;
-    private ArrayList<Node> children;
+    private List<Integer> keys;
+    private List<Node> children;
     private InternalNode parent;
 
-    public InternalNode(ArrayList<Integer> keys, ArrayList<Node> children, int maxNumOfKeys) {
+    public InternalNode(List<Integer> keys, List<Node> children, int maxNumOfKeys) {
         this.keys = keys;
         this.children = children;
         this.maxNumOfKeys = maxNumOfKeys;
@@ -22,11 +23,11 @@ public class InternalNode extends Node {
         return this.keys.size();
     }
 
-    public ArrayList<Integer> getKeys() {
+    public List<Integer> getKeys() {
         return this.keys;
     }
 
-    public ArrayList<Node> getChildren() {
+    public List<Node> getChildren() {
         return this.children;
     }
 
@@ -65,20 +66,20 @@ public class InternalNode extends Node {
         children.add(newIndex, newNode);
     }
 
-    public ArrayList<Node> splitChildrenList(int x) {
+    public List<Node> splitChildrenList(int x) {
         // [0..x) and returns [x..n)
-        ArrayList<Node> left = new ArrayList<Node>(children.subList(0, x));
-        ArrayList<Node> right = new ArrayList<Node>(children.subList(x, children.size()));
+        List<Node> left = new ArrayList<Node>(children.subList(0, x));
+        List<Node> right = new ArrayList<Node>(children.subList(x, children.size()));
 
         children = left;
 
         return right;
     }
 
-    public ArrayList<Integer> splitKeyList(int x) {
+    public List<Integer> splitKeyList(int x) {
         // [0..x) and returns [x..n)
-        ArrayList<Integer> left = new ArrayList<Integer>(keys.subList(0, x));
-        ArrayList<Integer> right = new ArrayList<Integer>(keys.subList(x, keys.size()));
+        List<Integer> left = new ArrayList<Integer>(keys.subList(0, x));
+        List<Integer> right = new ArrayList<Integer>(keys.subList(x, keys.size()));
 
         keys = left;
 

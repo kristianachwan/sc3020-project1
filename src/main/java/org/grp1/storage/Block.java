@@ -1,18 +1,18 @@
 package org.grp1.storage;
 
+import org.grp1.model.Record;
 import org.grp1.constant.ErrorMessage;
 import org.grp1.exception.BlockFullException;
 import org.grp1.exception.InvalidIndexException;
 
-public class Block<T> {
+public class Block {
 
     private int numOfRecord;
-    private T[] records;
+    private Record[] records;
 
     public Block(int size) {
         this.numOfRecord = 0;
-        // wrapper for creating an array of generic since Java does not support it
-        this.records = (T[]) new Object[size];
+        this.records = new Record[size];
     }
 
     public int getNumberOfRecords() {
@@ -27,20 +27,20 @@ public class Block<T> {
         return numOfRecord >= records.length;
     }
 
-    public T getRecord(int index) throws InvalidIndexException {
+    public Record getRecord(int index) throws InvalidIndexException {
         if (isInvalidIndex(index))
             throw new InvalidIndexException(ErrorMessage.INVALID_INDEX_MSG);
         
         return records[index];
     }
 
-    public T[] getRecords() {
+    public Record[] getRecords() {
         return records;
     }
 
-    public void insertRecord(T obj) throws BlockFullException {
+    public void insertRecord(Record obj) throws BlockFullException {
         if (numOfRecord >= records.length)
-            throw new BlockFullException(ErrorMessage.BLOCk_FULL_MSG);
+            throw new BlockFullException(ErrorMessage.BLOCK_FULL_MSG);
 
         records[numOfRecord] = obj;
         this.numOfRecord += 1;

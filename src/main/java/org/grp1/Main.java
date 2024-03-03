@@ -1,20 +1,22 @@
 package org.grp1;
 
+import java.util.List;
+
+import org.grp1.constant.Config;
+import org.grp1.model.Record;
 import org.grp1.storage.Disk;
+import org.grp1.util.RecordParser;
+import org.grp1.util.TSVReader;
 
 //TIP To <b>Run</b> code, press <shortcut actionId="Run"/> or
 // click the <icon src="AllIcons.Actions.Execute"/> icon in the gutter.
 public class Main {
-    private static final int MB = 1 << 20;
-    private static final int DISK_SIZE = 100 * MB;
-    private static final int BLOCK_SIZE = 200;
-    private static final String DATA_FILE_PATH = "data.tsv";
-    private static final int RECORD_SIZE = 17;
+
     private static Disk disk;
 
     public static void main(String[] args) {
         System.out.println("Setting up the disk...");
-        disk = new Disk(DISK_SIZE, BLOCK_SIZE, RECORD_SIZE);
+        disk = new Disk(Config.DISK_SIZE, Config.BLOCK_SIZE, Config.RECORD_SIZE);
         runExperiment1();
         runExperiment2();
         runExperiment3();
@@ -24,6 +26,15 @@ public class Main {
 
     public static void runExperiment1() {
         System.out.println("Running experiment 1");
+        try {
+            List<String> listOfRecordStr = TSVReader.ReadTSVFile(Config.DATA_FILE_PATH);
+            for (String recordStr : listOfRecordStr) {
+                Record newRecord = RecordParser.ParseRecordStr(recordStr);
+                disk.insertRecord(newRecord);
+            }
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+        }
         disk.printDiskInformation();
         System.out.println("Ending experiment 1");
     }
