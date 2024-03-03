@@ -1,6 +1,6 @@
 package org.grp1;
 
-import java.util.ArrayList;
+import java.util.List;
 
 public class InternalNode extends Node {
     private final int maxNumOfKeys;
@@ -35,7 +35,7 @@ public class InternalNode extends Node {
         this.parent = parent;
     }
 
-    public void setChildren(ArrayList<Integer> keys, ArrayList<Node> children) {
+    public void setChildren(List<Integer> keys, List<Node> children) {
         this.keys = keys;
         this.children = children;
     }
