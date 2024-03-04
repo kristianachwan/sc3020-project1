@@ -86,10 +86,6 @@ public class LeafNode extends Node {
         return keys.size();
     }
 
-    public Record getRecordByIndex(int index) {
-        return this.records.get(index);
-    }
-
     public Record getRecord(int key) {
         int recordIndex = getRecordIndex(key);
         if (recordIndex == -1) {
