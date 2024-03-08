@@ -1,8 +1,25 @@
 package org.grp1;
 
+import org.grp1.model.Record;
 import java.util.ArrayList;
+import java.util.List;
 
 public class BPlusTree {
+    private final int maxKeyNumber;
+    private final InternalNode sentinelNode;
+
+    public BPlusTree(int maxKeyNumber) {
+        this.maxKeyNumber = maxKeyNumber;
+        this.sentinelNode = new InternalNode(new ArrayList<>(), new ArrayList<>(), this.maxKeyNumber);
+    }
+
+    private int getNodeFirstKey(Node node) {
+        if (node instanceof LeafNode) {
+            return ((LeafNode) node).getRecordByIndex(0).getNumVotes();
+        } else {
+            return ((InternalNode) node).getKeys().get(0);
+        }
+    }
     private final int maxKeyNumber;
     private final InternalNode sentinelNode;
 
@@ -24,6 +41,7 @@ public class BPlusTree {
         if (node == null) {
             return null;
         }
+
 
         while (!(node instanceof LeafNode)) {
             InternalNode internalNode = (InternalNode) node;
@@ -92,7 +110,7 @@ public class BPlusTree {
     }
 
     public Node getRoot() {
-        ArrayList<Node> children = sentinelNode.getChildren();
+        List<Node> children = sentinelNode.getChildren();
         if (children.isEmpty()) {
             return null;
         }
