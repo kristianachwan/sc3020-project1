@@ -88,6 +88,27 @@ public class InternalNode extends Node {
         return right;
     }
 
+    public boolean updateKey(int index) {
+        // Returns true if a new key is updated
+
+        Node child = this.children.get(index);
+        int newKey;
+
+        if (child instanceof LeafNode leafChild) {
+            newKey = leafChild.getKeys().get(0);
+        } else {
+            InternalNode internalChild = (InternalNode) child;
+            newKey = internalChild.getKeys().get(0);
+        }
+
+        if (newKey != this.keys.get(index)) {
+            this.keys.set(index, newKey);
+            return true;
+        }
+
+        return false;
+    }
+
     public int getMaxNumOfKeys() {
         return this.maxNumOfKeys;
     }
