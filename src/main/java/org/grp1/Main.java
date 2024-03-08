@@ -1,7 +1,5 @@
 package org.grp1;
 
-import java.util.ArrayList;
-
 //TIP To <b>Run</b> code, press <shortcut actionId="Run"/> or
 // click the <icon src="AllIcons.Actions.Execute"/> icon in the gutter.
 public class Main {
@@ -11,7 +9,6 @@ public class Main {
     private static final String DATA_FILE_PATH = "data.tsv";
     private static final int RECORD_SIZE = 17;
     private static Disk disk;
-    private static BPlusTree bPlusTree;
 
     public static void main(String[] args) {
         System.out.println("Setting up the disk...");
@@ -24,49 +21,28 @@ public class Main {
     }
 
     public static void runExperiment1() {
-        System.out.println("----------Running experiment 1----------");
+        System.out.println("Running experiment 1");
         disk.printDiskInformation();
-        System.out.println("----------Ending experiment 1----------\n\n");
+        System.out.println("Ending experiment 1");
     }
 
     public static void runExperiment2() {
-        System.out.println("----------Running experiment 2----------");
-        // Instantiate new B+ tree
-        bPlusTree = new BPlusTree(13);
-        // Populate the B+ tree
-        for (int i = 0; i < disk.getNumberOfBlocks(); i++) {
-            Block block = disk.getBlock(i);
-            for (Record record : block.getRecords()) {
-                bPlusTree.insertRecord(record);
-            }
-        }
-        System.out.println("The parameter n of the B+ tree: " + bPlusTree.getMaxKeyNumber());
-        System.out.println("The number of nodes of the B+ tree: " + bPlusTree.getNodeCount());
-        System.out.println("The number of levels of the B+ tree: " + bPlusTree.getNumberOfLevels());
-        bPlusTree.printRootKeys();
-
-        System.out.println("----------Ending experiment 2----------\n\n");
+        System.out.println("Running experiment 2");
+        System.out.println("Ending experiment 2");
     }
 
     public static void runExperiment3() {
-        System.out.println("----------Running experiment 3----------");
-        ArrayList<Record> Votes500 = bPlusTree.getRecordsByNumVotes(500);
-        System.out.println(Votes500);
-        System.out.println("The number of index nodes the process accesses: ");
-        System.out.println("The number of data blocks the process accesses: ");
-        System.out.println("The average of 'averageRatings' of the records that are returned: ");
-        System.out.println("The running time of the retrieval process: ");
-        System.out.println("the number of data blocks that would be accessed by a brute-force linear scan method: ");
-        System.out.println("----------Ending experiment 3----------\n\n");
+        System.out.println("Running experiment 3");
+        System.out.println("Ending experiment 3");
     }
 
     public static void runExperiment4() {
-        System.out.println("----------Running experiment 4----------");
-        System.out.println("----------Ending experiment 4----------\n\n");
+        System.out.println("Running experiment 4");
+        System.out.println("Ending experiment 4");
     }
 
     public static void runExperiment5() {
-        System.out.println("----------Running experiment 5----------");
-        System.out.println("----------Ending experiment 5----------\n\n");
+        System.out.println("Running experiment 5");
+        System.out.println("Ending experiment 5");
     }
 }
