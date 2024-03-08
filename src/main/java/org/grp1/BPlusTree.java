@@ -211,8 +211,7 @@ public class BPlusTree {
 
             nodeList.add(root);
             nodeList.add(newNode);
-
-            keyList.add(getNodeFirstKey(root));
+            
             keyList.add(getNodeFirstKey(newNode));
 
             InternalNode newRoot = new InternalNode(keyList, nodeList, this.maxKeyNumber);
