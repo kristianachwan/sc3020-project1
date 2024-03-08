@@ -1,6 +1,6 @@
 package org.grp1;
 
-public class Record {
+public class Record implements NodeChild {
     private String tconst;
     private float averageRating;
     private int numVotes;
@@ -9,6 +9,10 @@ public class Record {
         this.tconst = tconst;
         this.averageRating = averageRating;
         this.numVotes = numVotes;
+    }
+
+    public int getKey() {
+        return this.getNumVotes();
     }
 
     public int getNumVotes() {

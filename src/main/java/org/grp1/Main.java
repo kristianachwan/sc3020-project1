@@ -10,9 +10,13 @@ public class Main {
     private static final int RECORD_SIZE = 17;
     private static Disk disk;
 
+    private static BPlusTree index;
+
     public static void main(String[] args) {
         System.out.println("Setting up the disk...");
         disk = new Disk(DISK_SIZE, BLOCK_SIZE, RECORD_SIZE, DATA_FILE_PATH);
+
+        index = new BPlusTree(3);
         runExperiment1();
         runExperiment2();
         runExperiment3();
@@ -28,6 +32,18 @@ public class Main {
 
     public static void runExperiment2() {
         System.out.println("Running experiment 2");
+
+
+        int cnt = 0;
+        for (int bnum = 0; bnum < disk.getNumberOfBlocks(); bnum++) {
+
+            Block block = disk.getBlock(bnum);
+            for (int i = 0; i < block.getNumberOfRecords(); i++) {
+                index.insertRecord(block.getRecord(i));
+                cnt++;
+            }
+        }
+
         System.out.println("Ending experiment 2");
     }
 
