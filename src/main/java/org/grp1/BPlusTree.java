@@ -142,6 +142,8 @@ public class BPlusTree {
             Node child = internalNode.getChild(childIndex);
 
             Node newNode = recursiveInsertNode(child, newRecord);
+            // Update child's key
+            internalNode.updateKey(childIndex);
 
             if (newNode != null) {
                 int newNodeKey = getNodeFirstKey(newNode);
