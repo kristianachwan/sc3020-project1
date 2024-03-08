@@ -107,7 +107,7 @@ public class InternalNode extends Node {
 
         return right;
     }
-
+    
     public boolean updateKey(int index) {
         // Returns true if a new key is updated
 
@@ -136,6 +136,5 @@ public class InternalNode extends Node {
     public int getMinNumOfKeys() {
         return (this.maxNumOfKeys) / 2;
     }
-
 
 }

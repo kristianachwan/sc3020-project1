@@ -6,8 +6,4 @@ public abstract class Node {
 
     abstract public void setParent(InternalNode node);
 
-    abstract public int getMaxNumOfKeys();
-
-    abstract public int getMinNumOfKeys();
-
 }

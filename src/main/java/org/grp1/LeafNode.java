@@ -29,7 +29,6 @@ public class LeafNode extends Node {
         this.maxNumOfKeys = maxNumOfKeys;
     }
 
-
     public boolean isFull() {
         return maxNumOfKeys == this.keys.size();
     }
@@ -126,13 +125,5 @@ public class LeafNode extends Node {
         keys = left;
 
         return right;
-    }
-
-    public int getMaxNumOfKeys() {
-        return this.maxNumOfKeys;
-    }
-
-    public int getMinNumOfKeys() {
-        return this.maxNumOfKeys / 2;
     }
 }
