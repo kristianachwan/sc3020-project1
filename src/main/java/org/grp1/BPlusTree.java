@@ -5,8 +5,8 @@ import java.util.ArrayList;
 public class BPlusTree {
     private final int maxKeyNumber;
     private final InternalNode sentinelNode;
+    private final int numLevels;
     private int numNodes;
-    private int numLevels;
 
     public BPlusTree(int maxKeyNumber) {
         this.maxKeyNumber = maxKeyNumber;
@@ -17,7 +17,7 @@ public class BPlusTree {
 
     private int getNodeFirstKey(Node node) {
         if (node instanceof LeafNode) {
-            return ((LeafNode) node).getRecordByIndex(0).getNumVotes();
+            return ((LeafNode) node).getKeys().get(0);
         } else {
             return ((InternalNode) node).getKeys().get(0);
         }
@@ -143,11 +143,11 @@ public class BPlusTree {
             InternalNode internalNode = (InternalNode) node;
 
             int childIndex = internalNode.getChildIndex(newRecord.getNumVotes());
-            Node child = internalNode.getChild(childIndex);
+            Node child = internalNode.getChildByIndex(childIndex);
 
             Node newNode = recursiveInsertNode(child, newRecord);
             // Update child's key
-            internalNode.updateKey(childIndex);
+            if (childIndex > 0) internalNode.updateKey(childIndex);
 
             if (newNode != null) {
                 this.numNodes++;
@@ -217,7 +217,7 @@ public class BPlusTree {
 
             nodeList.add(root);
             nodeList.add(newNode);
-            
+
             keyList.add(getNodeFirstKey(newNode));
 
             InternalNode newRoot = new InternalNode(keyList, nodeList, this.maxKeyNumber);
@@ -273,7 +273,6 @@ public class BPlusTree {
 //    }
 
 
-
     public int getNumberOfLevels() {
         return calculateLevels(sentinelNode);
     }
@@ -283,8 +282,7 @@ public class BPlusTree {
             return 0;
         }
 
-        if (node instanceof InternalNode) {
-            InternalNode internalNode = (InternalNode) node;
+        if (node instanceof InternalNode internalNode) {
             int maxLevels = 0;
             for (Node child : internalNode.getChildren()) {
                 maxLevels = Math.max(maxLevels, calculateLevels(child));
@@ -305,9 +303,6 @@ public class BPlusTree {
 //            System.out.println("Root Node is not an InternalNode");
 //        }
     }
-
-
-
 
 
 }
