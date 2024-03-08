@@ -16,4 +16,8 @@ public class Block {
     public Record getRecord(int index) {
         return records.get(index);
     }
+
+    public ArrayList<Record> getRecords() {
+        return new ArrayList<>(this.records);
+    }
 }
