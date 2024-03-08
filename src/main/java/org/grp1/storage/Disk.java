@@ -1,18 +1,19 @@
 package org.grp1.storage;
 
-import java.io.BufferedReader;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Timer;
 
 import org.grp1.constant.ErrorMessage;
 import org.grp1.exception.BlockFullException;
 import org.grp1.exception.DiskFullException;
 import org.grp1.model.Record;
+import org.grp1.util.Context;
 
 public class Disk {
+
+    private int accessCount;
 
     private int numOfRecord;
 
@@ -25,7 +26,7 @@ public class Disk {
     private Block[] blocks;
 
     public Disk(int diskSize, int blockSize, int recordSize) {
-        numOfRecord = 0;
+        this.numOfRecord = 0;
         this.diskSize = diskSize;
         this.blockSize = blockSize;
         this.recordSize = recordSize;
@@ -40,19 +41,58 @@ public class Disk {
         if (blockIndex < 0 || blockIndex >= getNumberOfBlocks())
             throw new DiskFullException(ErrorMessage.DISK_FULL_MSG);
 
-        Block blockToAddRecord = blocks[blockIndex];
-
         try {
-            if (blockToAddRecord == null)
-                blockToAddRecord = new Block(getMaxNumberOfRecordsInBlock());
 
-            blockToAddRecord.insertRecord(r);
+            if (blocks[blockIndex] == null)
+                blocks[blockIndex] = new Block(getMaxNumberOfRecordsInBlock());
+
+            blocks[blockIndex].insertRecord(r);
 
             numOfRecord++;
         } catch (BlockFullException e) {
             System.out.println(e.getMessage());
         }
 
+    }
+
+    public List<Record> getRecordsByNumVotes(int votes) {
+        accessCount = 0;
+        List<Record> records = new ArrayList<>();
+        for (Block b : blocks) {
+
+            if (b == null) break; 
+
+            accessCount++;
+            for (Record r : b.getRecords()) {
+                if (r != null && r.getNumVotes() == votes) records.add(r);
+            }
+        }
+        return records;
+    }
+
+    public List<Record> getRecordsByNumVotes(int lower, int upper) {
+        accessCount = 0;
+        List<Record> records = new ArrayList<>();
+        for (Block b : blocks) {
+            if (b == null) break; 
+
+            accessCount++;
+            for (Record r : b.getRecords()) {
+                if (r != null && r.getNumVotes() >= lower && r.getNumVotes() <= upper) records.add(r);
+            }
+            
+        }
+        return records;
+    }
+
+    public List<Record> getRecords() {
+        List<Record> records = new ArrayList<>();
+        for (Block b : blocks) {
+            if (b != null) {
+                records.addAll(Arrays.asList(b.getRecords()));
+            }
+        }
+        return records;
     }
 
     private int getMaxNumberOfRecordsInBlock() {
@@ -79,6 +119,10 @@ public class Disk {
 
     public Block getBlock(int index) {
         return blocks[index];
+    }
+
+    public int getAccessCount() {
+        return this.accessCount;
     }
 
 }

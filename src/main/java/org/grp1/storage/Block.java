@@ -12,7 +12,7 @@ public class Block {
 
     public Block(int size) {
         this.numOfRecord = 0;
-        this.records = new Record[size];
+        this.records = new Record[size + 1];
     }
 
     public int getNumberOfRecords() {

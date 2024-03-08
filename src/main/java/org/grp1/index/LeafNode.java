@@ -1,7 +1,9 @@
-package org.grp1;
+package org.grp1.index;
 
 import java.util.ArrayList;
 
+import org.grp1.exception.LeafFullException;
+import org.grp1.model.Record;
 
 public class LeafNode extends Node {
     private final int maxNumOfKeys;
@@ -51,9 +53,9 @@ public class LeafNode extends Node {
         this.records = records;
     }
 
-    public void insertRecord(Record newRecord) {
+    public void insertRecord(Record newRecord) throws LeafFullException {
         if (isFull()) {
-            throw new Error("Inserted a record in a full node");
+            throw new LeafFullException("Inserted a record in a full node");
         }
 
         int newIndex = getRecordIndexLowerBound(newRecord.getNumVotes());

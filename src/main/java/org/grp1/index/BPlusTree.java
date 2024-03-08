@@ -1,10 +1,14 @@
-package org.grp1;
+package org.grp1.index;
 
+import org.grp1.exception.LeafFullException;
 import org.grp1.model.Record;
 import java.util.ArrayList;
 import java.util.List;
 
 public class BPlusTree {
+
+    public static int indexNodeAccess = 0;
+    public static int dataBlockAccess = 0;
     private final int maxKeyNumber;
     private final InternalNode sentinelNode;
 
@@ -13,19 +17,9 @@ public class BPlusTree {
         this.sentinelNode = new InternalNode(new ArrayList<>(), new ArrayList<>(), this.maxKeyNumber);
     }
 
-    private int getNodeFirstKey(Node node) {
-        if (node instanceof LeafNode) {
-            return ((LeafNode) node).getRecordByIndex(0).getNumVotes();
-        } else {
-            return ((InternalNode) node).getKeys().get(0);
-        }
-    }
-    private final int maxKeyNumber;
-    private final InternalNode sentinelNode;
-
-    public BPlusTree(int maxKeyNumber) {
-        this.maxKeyNumber = maxKeyNumber;
-        this.sentinelNode = new InternalNode(new ArrayList<>(), new ArrayList<>(), this.maxKeyNumber);
+    private void resetAccessCount() {
+        indexNodeAccess = 0;
+        dataBlockAccess = 0;
     }
 
     private int getNodeFirstKey(Node node) {
@@ -81,6 +75,7 @@ public class BPlusTree {
     }
 
     public ArrayList<Record> getRecordsByNumVotes(int lowerNumVotes, int higherNumVotes) {
+        resetAccessCount();
         Node node = getRoot();
         if (node == null) {
             return new ArrayList<>();
@@ -88,12 +83,14 @@ public class BPlusTree {
 
         while (!(node instanceof LeafNode leafNode)) {
             InternalNode internalNode = (InternalNode) node;
+            indexNodeAccess++;
             node = internalNode.getChild(lowerNumVotes);
         }
 
         ArrayList<Record> records = new ArrayList<>();
         boolean finished = false;
         while (leafNode != null && !finished) {
+            dataBlockAccess++;
             ArrayList<Integer> keys = leafNode.getKeys();
             for (int i = 0; i < keys.size(); i++) {
                 if (keys.get(i) >= lowerNumVotes && keys.get(i) <= higherNumVotes) {
@@ -118,7 +115,7 @@ public class BPlusTree {
         return children.get(0);
     }
 
-    private Node recursiveInsertNode(Node node, Record newRecord) {
+    private Node recursiveInsertNode(Node node, Record newRecord) throws LeafFullException {
         // Returns null if there is no need to change the node
 
         if (node instanceof LeafNode leafNode) {
@@ -198,7 +195,7 @@ public class BPlusTree {
         return null;
     }
 
-    public void insertRecord(Record newRecord) {
+    public void insertRecord(Record newRecord) throws LeafFullException {
         Node root = getRoot();
 
 

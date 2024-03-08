@@ -1,4 +1,4 @@
-package org.grp1;
+package org.grp1.index;
 
 import java.util.ArrayList;
 
