@@ -222,7 +222,7 @@ public class BPlusTree {
                     if (childIndex + 1 <= (internalNode.size() + 2) / 2) {
                         internalNode.insert(newNode);
                     } else {
-                        newSiblingInternalNode.insertNode(newNode);
+                        newSiblingInternalNode.insert(newNode);
                     }
                     return newSiblingInternalNode;
                 } else {
