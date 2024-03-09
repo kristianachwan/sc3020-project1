@@ -8,6 +8,7 @@ import java.util.Timer;
 import org.grp1.constant.ErrorMessage;
 import org.grp1.exception.BlockFullException;
 import org.grp1.exception.DiskFullException;
+import org.grp1.exception.InvalidIndexException;
 import org.grp1.model.Record;
 import org.grp1.util.Context;
 
@@ -55,7 +56,7 @@ public class Disk {
 
     }
 
-    public List<Record> getRecordsByNumVotes(int votes) {
+    public List<Record> getRecordsByNumVotes(int numVotes) {
         accessCount = 0;
         List<Record> records = new ArrayList<>();
         for (Block b : blocks) {
@@ -64,7 +65,7 @@ public class Disk {
 
             accessCount++;
             for (Record r : b.getRecords()) {
-                if (r != null && r.getNumVotes() == votes) records.add(r);
+                if (r != null && r.getNumVotes() == numVotes) records.add(r);
             }
         }
         return records;
@@ -83,6 +84,25 @@ public class Disk {
             
         }
         return records;
+    }
+
+    public void deleteRecordsByNumVotes(int numVotes) throws InvalidIndexException {
+        accessCount = 0;
+        try {
+            for (Block b : blocks) {
+                if (b == null) break; 
+
+                accessCount++;
+                for (int i = 0; i < b.getRecords().length; i++) {
+                    if (b.getRecord(i) != null && b.getRecord(i).getNumVotes() == numVotes) {
+                        b.deleteRecord(i);
+                        numOfRecord--;
+                    }
+                }
+            }
+        } catch (InvalidIndexException e ) {
+            throw new InvalidIndexException(ErrorMessage.INVALID_INDEX_MSG);
+        }
     }
 
     public List<Record> getRecords() {

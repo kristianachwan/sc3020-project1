@@ -1,14 +1,15 @@
 package org.grp1.index;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import org.grp1.exception.LeafFullException;
 import org.grp1.model.Record;
 
 public class LeafNode extends Node {
     private final int maxNumOfKeys;
-    private ArrayList<Integer> keys;
-    private ArrayList<Record> records;
+    private List<Integer> keys;
+    private List<Record> records;
     private InternalNode parent;
     private LeafNode previous;
     private LeafNode next;
@@ -22,8 +23,8 @@ public class LeafNode extends Node {
         this.records = new ArrayList<Record>();
     }
 
-    public LeafNode(LeafNode previous, LeafNode next, InternalNode parent, ArrayList<Integer> keys,
-                    ArrayList<Record> records, int maxNumOfKeys) {
+    public LeafNode(LeafNode previous, LeafNode next, InternalNode parent, List<Integer> keys,
+    List<Record> records, int maxNumOfKeys) {
         this.previous = previous;
         this.next = next;
         this.parent = parent;
@@ -54,7 +55,7 @@ public class LeafNode extends Node {
     }
 
 
-    public void insert(NodeChild newChild) {
+    public void insert(NodeChild newChild) throws LeafFullException {
         if (!(newChild instanceof Record newRecord)) {
             throw new Error("Inserted a non-record child");
         }
@@ -97,6 +98,10 @@ public class LeafNode extends Node {
         return keys.size();
     }
 
+    public List<Integer> getKeys() {
+        return this.keys;
+    }
+
     public void delete(int index) {
         if (index < 0 || index >= records.size()) {
             throw (new Error("Index out of bounds"));
@@ -131,20 +136,20 @@ public class LeafNode extends Node {
         this.next = next;
     }
 
-    public ArrayList<Record> splitRecordList(int x) {
+    public List<Record> splitRecordList(int x) {
         // [0..x) and returns [x..n)
-        ArrayList<Record> left = new ArrayList<Record>(records.subList(0, x));
-        ArrayList<Record> right = new ArrayList<Record>(records.subList(x, records.size()));
+        List<Record> left = new ArrayList<Record>(records.subList(0, x));
+        List<Record> right = new ArrayList<Record>(records.subList(x, records.size()));
 
         records = left;
 
         return right;
     }
 
-    public ArrayList<Integer> splitKeyList(int x) {
+    public List<Integer> splitKeyList(int x) {
         // [0..x) and returns [x..n)
-        ArrayList<Integer> left = new ArrayList<Integer>(keys.subList(0, x));
-        ArrayList<Integer> right = new ArrayList<Integer>(keys.subList(x, keys.size()));
+        List<Integer> left = new ArrayList<Integer>(keys.subList(0, x));
+        List<Integer> right = new ArrayList<Integer>(keys.subList(x, keys.size()));
 
         keys = left;
 

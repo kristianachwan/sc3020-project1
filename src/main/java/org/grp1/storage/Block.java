@@ -54,7 +54,7 @@ public class Block {
         records[index] = null;
 
         for (int i = index+1; i < records.length; i++) {
-            records[index-1] = records[index];
+            records[i-1] = records[i];
         }
 
         this.numOfRecord -= 1;

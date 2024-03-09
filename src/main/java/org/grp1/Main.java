@@ -33,7 +33,7 @@ public class Main {
     }
 
     public static void runExperiment1() {
-        System.out.println("Running experiment 1");
+        System.out.println("----------Running experiment 1----------");
         try {
             List<String> listOfRecordStr = TSVReader.ReadTSVFile(Config.DATA_FILE_PATH);
             for (String recordStr : listOfRecordStr) {
@@ -44,11 +44,11 @@ public class Main {
             System.out.println(e.getMessage());
         }
         disk.printDiskInformation();
-        System.out.println("Ending experiment 1");
+        System.out.println("----------Ending experiment 1----------\n\n");
     }
 
     public static void runExperiment2() {
-        System.out.println("Running experiment 2");
+        System.out.println("----------Running experiment 2----------");
 
         try {
             for (Record r : disk.getRecords()) {
@@ -61,17 +61,21 @@ public class Main {
             System.out.println(e.getMessage());
         }
 
-        System.out.println("Ending experiment 2");
+        System.out.println("The parameter n of the B+ tree: " + index.getMaxKeyNumber());
+        System.out.println("The number of nodes of the B+ tree: " + index.getNodeCount());
+        System.out.println("The number of levels of the B+ tree: " + index.getNumberOfLevels());
+        index.printRootKeys();
+        System.out.println("----------Ending experiment 2----------\n\n");
     }
 
 
     public static void runExperiment3() {
-        System.out.println("Running experiment 3");
-        System.out.println("Ending experiment 3");
+        System.out.println("----------Running experiment 3----------");
+        System.out.println("----------Ending experiment 3----------\n\n");
     }
 
     public static void runExperiment4() {
-        System.out.println("Running experiment 4");
+        System.out.println("----------Running experiment 4----------");
 
         List<Record> records;
 
@@ -98,11 +102,35 @@ public class Main {
         System.out.println("Linear Search Time (ns): " + linearSearchTime);
         System.out.println("Linear Search Block Access Count: " + disk.getAccessCount());
 
-        System.out.println("Ending experiment 4");
+        System.out.println("----------Ending experiment 4----------\n\n");
     }
 
     public static void runExperiment5() {
-        System.out.println("Running experiment 5");
-        System.out.println("Ending experiment 5");
+        System.out.println("----------Running experiment 5----------");
+        /*context.startTimer();
+        try {
+            index.deleteRecord(1000);
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+        }
+        context.endTimer();
+        long indexDeleteTime = context.getElapsedTime(TimeUnit.NANOSECONDS);
+        System.out.println(index.getRecordsByNumVotes(1000).size());*/
+
+        context.startTimer();
+        try {
+            context.startTimer();
+            disk.deleteRecordsByNumVotes(1000);
+            context.endTimer();
+            long linearDeleteTime = context.getElapsedTime(TimeUnit.NANOSECONDS);
+
+            System.out.println("Linear Delete Time (ns): " + linearDeleteTime);
+            System.out.println("Linear Delete Block Access Count: " + disk.getAccessCount());
+            System.out.println("Number of Records after Delete: " + disk.getNumberOfRecords());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        System.out.println("----------Ending experiment 5----------\n\n");
     }
 }

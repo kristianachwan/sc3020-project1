@@ -9,6 +9,8 @@ public class BPlusTree {
 
     public static int indexNodeAccess = 0;
     public static int dataBlockAccess = 0;
+    public static int numNodes = 0;
+    public static int numLevels = 0;
     private final int maxKeyNumber;
     private final InternalNode sentinelNode;
 
@@ -21,6 +23,8 @@ public class BPlusTree {
     private void resetAccessCount() {
         indexNodeAccess = 0;
         dataBlockAccess = 0;
+        numNodes = 0;
+        numLevels = 0;
     }
 
     private int getNodeFirstKey(Node node) {
@@ -46,7 +50,7 @@ public class BPlusTree {
         return ((LeafNode) node).getRecord(numVotes);
     }
 
-    public ArrayList<Record> getRecordsByNumVotes(int numVotes) {
+    public List<Record> getRecordsByNumVotes(int numVotes) {
         Node node = getRoot();
         if (node == null) {
             return new ArrayList<>();
@@ -57,10 +61,10 @@ public class BPlusTree {
             node = internalNode.getChild(numVotes);
         }
 
-        ArrayList<Record> records = new ArrayList<>();
+        List<Record> records = new ArrayList<>();
         boolean finished = false;
         while (leafNode != null && !finished) {
-            ArrayList<Integer> keys = leafNode.getKeys();
+            List<Integer> keys = leafNode.getKeys();
             for (int i = 0; i < keys.size(); i++) {
                 if (numVotes == keys.get(i)) {
                     records.add(leafNode.getRecordByIndex(i));
@@ -75,7 +79,7 @@ public class BPlusTree {
         return records;
     }
 
-    public ArrayList<Record> getRecordsByNumVotes(int lowerNumVotes, int higherNumVotes) {
+    public List<Record> getRecordsByNumVotes(int lowerNumVotes, int higherNumVotes) {
         resetAccessCount();
         Node node = getRoot();
         if (node == null) {
@@ -88,11 +92,11 @@ public class BPlusTree {
             node = internalNode.getChild(lowerNumVotes);
         }
 
-        ArrayList<Record> records = new ArrayList<>();
+        List<Record> records = new ArrayList<>();
         boolean finished = false;
         while (leafNode != null && !finished) {
             dataBlockAccess++;
-            ArrayList<Integer> keys = leafNode.getKeys();
+            List<Integer> keys = leafNode.getKeys();
             for (int i = 0; i < keys.size(); i++) {
                 if (keys.get(i) >= lowerNumVotes && keys.get(i) <= higherNumVotes) {
                     records.add(leafNode.getRecordByIndex(i));
@@ -116,7 +120,7 @@ public class BPlusTree {
         return children.get(0);
     }
 
-    private boolean recursiveDeleteNode(Node node, int numVotes) {
+    private boolean recursiveDeleteNode(Node node, int numVotes) throws LeafFullException {
         // Returning true = accessed node has been modified/keys deleted
         /*
          * Main idea:
@@ -231,7 +235,7 @@ public class BPlusTree {
         }
     }
 
-    private Node recursiveInsertNode(Node node, Record newRecord) {
+    private Node recursiveInsertNode(Node node, Record newRecord) throws LeafFullException {
         // Returns null if there is no need to change the node
 
         if (node instanceof LeafNode leafNode) {
@@ -242,9 +246,9 @@ public class BPlusTree {
 
                 // n + 1
                 // if split at (n+2)//2 => n//2 + 1
-                ArrayList<Record> newRecordList = leafNode
+                List<Record> newRecordList = leafNode
                         .splitRecordList((leafNode.size() + 2) / 2 + (idx <= leafNode.size() / 2 ? -1 : 0));
-                ArrayList<Integer> newKeyList = leafNode
+                List<Integer> newKeyList = leafNode
                         .splitKeyList((leafNode.size() + 2) / 2 + (idx <= leafNode.size() / 2 ? -1 : 0));
 
                 LeafNode newLeafNode = new LeafNode(leafNode, leafNode.getNext(), null, newKeyList, newRecordList,
@@ -281,8 +285,8 @@ public class BPlusTree {
             if (newNode != null) {
                 if (internalNode.isFull()) {
 
-                    ArrayList<Node> newNodeList;
-                    ArrayList<Integer> newKeyList;
+                    List<Node> newNodeList;
+                    List<Integer> newKeyList;
                     InternalNode newSiblingInternalNode;
 
                     newNodeList = internalNode.splitChildrenList(
@@ -364,7 +368,7 @@ public class BPlusTree {
         }
     }
 
-    public void deleteRecord(int numVotes) {
+    public void deleteRecord(int numVotes) throws Exception {
         Node root = getRoot();
 
         if (root == null) {
@@ -381,6 +385,10 @@ public class BPlusTree {
                 this.sentinelNode.getChildren().add(newRoot);
             }
         }
+    }
+
+    public int getMaxKeyNumber() {
+        return maxKeyNumber; // it's better to have calculations here instead?
     }
 
 }
