@@ -32,6 +32,11 @@ public class InternalNode extends Node {
         return this.children;
     }
 
+    public void clear() {
+        this.keys = new ArrayList<>();
+        this.children = new ArrayList<>();
+    }
+
     public void delete(int index) {
         if (index < 0 || index + 1 > this.children.size()) {
             throw new Error("Deleting invalid index");
@@ -39,6 +44,11 @@ public class InternalNode extends Node {
         // It will delete i-1-th and i-th key and record respectively
         keys.remove(index == 0 ? 0 : index - 1);
         children.remove(index);
+    }
+
+    public void setRecords(ArrayList<Integer> keys, ArrayList<Node> children) {
+        this.keys = keys;
+        this.children = children;
     }
 
     public void setParent(InternalNode parent) {

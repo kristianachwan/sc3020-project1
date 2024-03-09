@@ -150,19 +150,18 @@ public class BPlusTree {
             return true;
         } else {
             InternalNode internalNode = (InternalNode) node;
-            int index = internalNode.getChildIndex(numVotes);
-            Node childNode = internalNode.getChildByIndex(index);
+            int childIndex = internalNode.getChildIndex(numVotes);
+            Node childNode = internalNode.getChildByIndex(childIndex);
 
-            int minimumNoOfChild = childNode instanceof LeafNode ? maxKeyNumber / 2 : (maxKeyNumber + 1) / 2;
+            int minimumNoOfChild = childNode instanceof LeafNode ? (maxKeyNumber + 1) / 2 : maxKeyNumber / 2;
 
             if (!recursiveDeleteNode(childNode, numVotes)) {
                 // Child node does not change
-                if (index > 0) internalNode.updateKey(index);
+                if (childIndex > 0) internalNode.updateKey(childIndex);
                 return false;
             }
 
-            if (index > 0) internalNode.updateKey(index - 1);
-            else internalNode.updateKey(index + 1);
+            if (childIndex > 0) internalNode.updateKey(childIndex);
 
             // Checks if the recursive-ed child is above the legal minimum amount of children
             if (childNode.size() >= minimumNoOfChild) {
@@ -173,34 +172,40 @@ public class BPlusTree {
             Node siblingChild = null;
             boolean isLeftSibling = true;
 
-            if (index > 0 && (
-                    internalNode.getChildByIndex(index - 1).size() > maxKeyNumber / 2 + 1 ||
-                            internalNode.getChildByIndex(index - 1) instanceof InternalNode && internalNode.getChildByIndex(index - 1).size() > maxKeyNumber / 2
+            if (childIndex > 0 && (
+                    internalNode.getChildByIndex(childIndex - 1).size() > minimumNoOfChild
             )) {
                 // Check if the left sibling is available
                 Context.increment();
-                siblingChild = internalNode.getChildByIndex(index - 1);
-            } else if (index < internalNode.size() - 1 && (
-                    internalNode.getChildByIndex(index + 1).size() > maxKeyNumber / 2 + 1 ||
-                            internalNode.getChildByIndex(index + 1) instanceof InternalNode && internalNode.getChildByIndex(index - 1).size() > maxKeyNumber / 2
+                siblingChild = internalNode.getChildByIndex(childIndex - 1);
+            } else if (childIndex < internalNode.size() && (
+                    internalNode.getChildByIndex(childIndex + 1).size() > minimumNoOfChild
             )) {
                 // Check if the right sibling is available
                 Context.increment();
                 Context.increment();
-                siblingChild = internalNode.getChildByIndex(index + 1);
+                siblingChild = internalNode.getChildByIndex(childIndex + 1);
                 isLeftSibling = false;
             }
 
             if (siblingChild != null) {
                 // Found a sibling child to borrow from
-                int indexToBeDeleted = (isLeftSibling ? siblingChild.size() - 1 : 0);
+                int indexToBeDeleted = (isLeftSibling ? siblingChild.size() - (siblingChild instanceof LeafNode ? 1 : 0) : 0);
 
-                NodeChild child = siblingChild.getChildAsNodeChild(indexToBeDeleted + (siblingChild instanceof LeafNode ? 0 : 1));
+                NodeChild child = siblingChild.getChildAsNodeChild(indexToBeDeleted);
 
                 siblingChild.delete(indexToBeDeleted);
 
                 // Adding to the current node
                 childNode.insert(child);
+
+                if (isLeftSibling) {
+                    if (childIndex > 1) internalNode.updateKey(childIndex - 1);
+                } else {
+                    internalNode.updateKey(childIndex + 1);
+                }
+
+                if (childIndex > 0) internalNode.updateKey(childIndex);
 
                 return false;
             }
@@ -210,35 +215,25 @@ public class BPlusTree {
             // but do also check if it is the first or the last index
             // No change in number of nodes accessed (already two)
 
-            if (index > 0) {
-                siblingChild = internalNode.getChildByIndex(index - 1);
-            } else if (index < internalNode.size()) {
-                siblingChild = internalNode.getChildByIndex(index + 1);
+            if (childIndex > 0) {
+                siblingChild = internalNode.getChildByIndex(childIndex - 1);
+            } else {
+                siblingChild = internalNode.getChildByIndex(childIndex + 1);
             }
 
             if (siblingChild != null) {
                 if (childNode instanceof LeafNode childLeafNode) {
-
-                    for (int i = 0; i < index; i++) {
-                        siblingChild.insert(childLeafNode.getBucketByIndex(i));
-                    }
-
-                    for (int i = index + 1; i < childLeafNode.size(); i++) {
+                    for (int i = 0; i < childLeafNode.size(); i++) {
                         siblingChild.insert(childLeafNode.getBucketByIndex((i)));
                     }
                 } else {
                     InternalNode childInternalNode = (InternalNode) childNode;
-
-                    for (int i = 0; i < index; i++) {
-                        siblingChild.insert(childInternalNode.getChildByIndex(i));
-                    }
-
-                    for (int i = index + 1; i <= childInternalNode.size(); i++) {
+                    for (int i = 0; i < childInternalNode.size(); i++) {
                         siblingChild.insert(childInternalNode.getChildByIndex((i)));
                     }
                 }
 
-                internalNode.delete(index);
+                internalNode.delete(childIndex);
 
                 return true;
             } else {
@@ -254,31 +249,40 @@ public class BPlusTree {
 
         if (node instanceof LeafNode leafNode) {
             // It is the leafNode a.k.a. the base case
-            if (leafNode.isFull()) {
+            if (leafNode.isFull() && leafNode.getRecordIndex(key) == -1) {
 
-                int idx = leafNode.getRecordIndexLowerBound(key);
+                List<Bucket> newBuckets = leafNode.getBuckets();
+                List<Integer> keys = leafNode.getKeys();
+                Bucket newBucket = new Bucket(key);
+                newBucket.insertAddress(newAddress);
 
-                // n + 1
-                // if split at (n+2)//2 => n//2 + 1
-                List<Bucket> newRecordList = leafNode
-                        .splitBucketList((leafNode.size() + 2) / 2 + (idx <= maxKeyNumber / 2 ? -1 : 0));
-                List<Integer> newKeyList = leafNode
-                        .splitKeyList((leafNode.size() + 2) / 2 + (idx <= maxKeyNumber / 2 ? -1 : 0));
+                boolean inserted = false;
 
-                LeafNode newLeafNode = new LeafNode(leafNode, leafNode.getNext(), null, newKeyList, newRecordList,
-                        this.maxKeyNumber);
+                for (int i = 0; i < keys.size(); i++) {
+                    if (keys.get(i) > key) {
+                        keys.add(i, key);
+                        newBuckets.add(i, newBucket);
+                        inserted = true;
+                        break;
+                    }
+                }
 
-                // Modify the old leafnode
+                if (!inserted) {
+                    keys.add(key);
+                    newBuckets.add(newBucket);
+                    inserted = true;
+                }
+
+                leafNode.clear();
+                leafNode.setRecords(new ArrayList<>(keys.subList(0, (maxKeyNumber + 1) / 2)), new ArrayList<>(newBuckets.subList(0, (maxKeyNumber + 1) / 2)));
+
+                LeafNode newLeafNode = new LeafNode(leafNode, leafNode.getNext(), null, keys.subList((maxKeyNumber + 1) / 2, maxKeyNumber + 1), newBuckets.subList((maxKeyNumber + 1) / 2, maxKeyNumber + 1), this.maxKeyNumber);
+
+                // Modify the old leaf node
                 if (leafNode.getNext() != null) {
                     leafNode.getNext().setPrevious(newLeafNode);
                 }
                 leafNode.setNext(newLeafNode);
-
-                if (idx <= maxKeyNumber / 2) {
-                    leafNode.insertAddress(newAddress, key);
-                } else {
-                    newLeafNode.insertAddress(newAddress, key);
-                }
 
                 return newLeafNode;
             } else {
@@ -299,25 +303,37 @@ public class BPlusTree {
             if (newNode != null) {
                 if (internalNode.isFull()) {
 
-                    List<Node> newNodeList;
-                    List<Integer> newKeyList;
-                    InternalNode newSiblingInternalNode;
+                    List<Node> newNodes = internalNode.getChildren(); // maxKeyNumber + 1
+                    List<Integer> keys = internalNode.getKeys(); // maxKeyNumber
 
-                    newNodeList = internalNode.splitChildrenList(
-                            (maxKeyNumber + 2) / 2 + (childIndex + 1 <= (maxKeyNumber + 2) / 2 ? -1 : 0));
-                    newKeyList = internalNode.splitKeyList((maxKeyNumber + 2) / 2 - 1
-                            + (childIndex + 1 <= (internalNode.size() + 2) / 2 ? -1 : 0));
+                    int newKey = newNode.getKey();
+                    boolean inserted = false;
 
-                    newKeyList.remove(0);
-
-                    newSiblingInternalNode = new InternalNode(newKeyList, newNodeList, this.maxKeyNumber);
-
-                    if (childIndex + 1 <= (maxKeyNumber + 2) / 2) {
-                        internalNode.insert(newNode);
+                    if (newNodes.get(0).getKey() > newKey) {
+                        keys.add(0, newNodes.get(0).getKey());
+                        newNodes.add(0, newNode);
+                        inserted = true;
                     } else {
-                        newSiblingInternalNode.insert(newNode);
+                        for (int i = 0; i < keys.size(); i++) {
+                            if (keys.get(i) > key) {
+                                keys.add(i, newKey);
+                                newNodes.add(i + 1, newNode);
+                                inserted = true;
+                                break;
+                            }
+                        }
                     }
-                    return newSiblingInternalNode;
+
+                    if (!inserted) {
+                        keys.add(newKey);
+                        newNodes.add(newNode);
+                    }
+
+                    internalNode.clear();
+                    int splitIndex = (maxKeyNumber + 2) / 2;
+                    internalNode.setRecords(new ArrayList<>(keys.subList(0, splitIndex - 1)), new ArrayList<>(newNodes.subList(0, splitIndex)));
+
+                    return new InternalNode(keys.subList(splitIndex, maxKeyNumber + 1), newNodes.subList(splitIndex, maxKeyNumber + 2), this.maxKeyNumber);
                 } else {
                     internalNode.insert(newNode);
                 }
