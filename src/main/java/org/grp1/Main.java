@@ -1,10 +1,5 @@
 package org.grp1;
 
-import java.text.DecimalFormat;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.TimeUnit;
-
 import org.grp1.constant.Config;
 import org.grp1.exception.InvalidIndexException;
 import org.grp1.exception.LeafFullException;
@@ -62,7 +57,6 @@ public class Main {
             for (int i = 0; i < disk.getOccupiedBlock(); i++) {
                 Block block = disk.getBlock(i);
                 int numOfRecords = block.getNumberOfRecords();
-
                 for (int j = 0; j < numOfRecords; j++) {
                     //System.out.printf("%d %d\n", i, j);
                     Address addr = new Address(i, j);
@@ -93,7 +87,7 @@ public class Main {
         long startTimeLinear = System.nanoTime();
         List<Record> recordsDisk = disk.getRecordsByNumVotes(500);
         long endTimeLinear = System.nanoTime();
-        long linearSearchTime =  (endTimeLinear - startTimeLinear);
+        long linearSearchTime = (endTimeLinear - startTimeLinear);
 
         // calculate time for index search
         long startTimeIndex = System.nanoTime();
