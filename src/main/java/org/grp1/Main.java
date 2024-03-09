@@ -1,5 +1,6 @@
 package org.grp1;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
@@ -64,7 +65,7 @@ public class Main {
 
         System.out.println("The parameter n of the B+ tree: " + index.getMaxKeyNumber());
         System.out.println("The number of nodes of the B+ tree: " + BPlusTree.numNodes);
-        System.out.println("The number of levels of the B+ tree: " + BPlusTree.numLevels);
+        System.out.println("The number of levels of the B+ tree: " + index.calculateNumLevels());
         index.printRootKeys();
         System.out.println("----------Ending experiment 2----------\n\n");
     }
@@ -72,6 +73,32 @@ public class Main {
 
     public static void runExperiment3() {
         System.out.println("----------Running experiment 3----------");
+        // calculate time for linear search
+        long startTimeLinear = System.nanoTime();
+        List<Record> recordsDisk = disk.getRecordsByNumVotes(500);
+        long endTimeLinear = System.nanoTime();
+        long linearSearchTime =  (endTimeLinear - startTimeLinear);
+
+        // calculate time for index search
+        long startTimeIndex = System.nanoTime();
+        List<Record> votes500 = index.getRecordsByNumVotes(500);
+        long endTimeIndex = System.nanoTime();
+        long indexSearchTime = (endTimeIndex - startTimeIndex);
+
+        // calculate avg of 'averageRatings'
+        long totalAvgRating = 0;
+        for (Record record : votes500) {
+            totalAvgRating += record.getAverageRating();
+        }
+        long averageAvgRating = totalAvgRating / votes500.size();
+
+        System.out.println("Index Node Access Count: " + BPlusTree.indexNodeAccess);
+        System.out.println("Data Block Access Count: " + BPlusTree.dataBlockAccess);
+        System.out.println("Average Rating: " + averageAvgRating);
+        System.out.println("Index Search Time (ns): " + indexSearchTime);
+        System.out.println("Linear Search Time (ns):" + linearSearchTime);
+        System.out.println("Linear Search Block Access Count: " + disk.getAccessCount());
+        index.resetAccessCount();
         System.out.println("----------Ending experiment 3----------\n\n");
     }
 
