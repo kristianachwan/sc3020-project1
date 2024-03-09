@@ -2,6 +2,7 @@ package org.grp1.index;
 
 import org.grp1.exception.LeafFullException;
 import org.grp1.model.Record;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -20,9 +21,11 @@ public class BPlusTree {
         this.sentinelNode = new InternalNode(new ArrayList<>(), new ArrayList<>(), this.maxKeyNumber);
     }
 
-    public void resetAccessCount() {
+    private void resetAccessCount() {
         indexNodeAccess = 0;
         dataBlockAccess = 0;
+        numNodes = 0;
+        numLevels = 0;
     }
 
     private int getNodeFirstKey(Node node) {
@@ -56,14 +59,12 @@ public class BPlusTree {
 
         while (!(node instanceof LeafNode leafNode)) {
             InternalNode internalNode = (InternalNode) node;
-            indexNodeAccess++;
             node = internalNode.getChild(numVotes);
         }
 
         List<Record> records = new ArrayList<>();
         boolean finished = false;
         while (leafNode != null && !finished) {
-            dataBlockAccess++;
             List<Integer> keys = leafNode.getKeys();
             for (int i = 0; i < keys.size(); i++) {
                 if (numVotes == keys.get(i)) {
@@ -284,6 +285,7 @@ public class BPlusTree {
             if (childIndex > 0) internalNode.updateKey(childIndex);
 
             if (newNode != null) {
+                BPlusTree.numNodes++;
                 if (internalNode.isFull()) {
 
                     List<Node> newNodeList;
@@ -399,24 +401,5 @@ public class BPlusTree {
         InternalNode root = (InternalNode) getRoot();
         System.out.println("Root Node Keys: " + root.getKeys());
     }
-
-    public int calculateNumLevels() {
-        Node root = getRoot();
-        if (root == null) {
-            return 0;
-        }
-
-        int height = 1;
-        Node current = root;
-
-        while (!(current instanceof LeafNode)) {
-            InternalNode internalNode = (InternalNode) current;
-            current = internalNode.getChild(0);
-            height++;
-        }
-
-        return height;
-    }
-
 
 }
