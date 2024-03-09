@@ -11,14 +11,10 @@ public class BPlusTree {
     public static int dataBlockAccess = 0;
     private final int maxKeyNumber;
     private final InternalNode sentinelNode;
-    private int numNodes;
-    private int numLevels;
 
     public BPlusTree(int maxKeyNumber) {
         this.maxKeyNumber = maxKeyNumber;
         this.sentinelNode = new InternalNode(new ArrayList<>(), new ArrayList<>(), this.maxKeyNumber);
-        this.numNodes = 0;
-        this.numLevels = 0;
     }
 
     private void resetAccessCount() {
@@ -28,7 +24,7 @@ public class BPlusTree {
 
     private int getNodeFirstKey(Node node) {
         if (node instanceof LeafNode) {
-            return ((LeafNode) node).getRecordByIndex(0).getNumVotes();
+            return ((LeafNode) node).getKeys().get(0);
         } else {
             return ((InternalNode) node).getKeys().get(0);
         }
@@ -158,14 +154,13 @@ public class BPlusTree {
             InternalNode internalNode = (InternalNode) node;
 
             int childIndex = internalNode.getChildIndex(newRecord.getNumVotes());
-            Node child = internalNode.getChild(childIndex);
+            Node child = internalNode.getChildByIndex(childIndex);
 
             Node newNode = recursiveInsertNode(child, newRecord);
             // Update child's key
-            internalNode.updateKey(childIndex);
+            if (childIndex > 0) internalNode.updateKey(childIndex);
 
             if (newNode != null) {
-                this.numNodes++;
                 int newNodeKey = getNodeFirstKey(newNode);
                 if (internalNode.isFull()) {
 
@@ -220,7 +215,6 @@ public class BPlusTree {
             sentinelNode.setChildren(sentinelKeyList, sentinelNodeList);
 
             root = newNode;
-            numNodes++;
         }
 
         Node newNode = recursiveInsertNode(root, newRecord);
@@ -232,7 +226,7 @@ public class BPlusTree {
 
             nodeList.add(root);
             nodeList.add(newNode);
-            
+
             keyList.add(getNodeFirstKey(newNode));
 
             InternalNode newRoot = new InternalNode(keyList, nodeList, this.maxKeyNumber);
@@ -241,7 +235,6 @@ public class BPlusTree {
             newNode.setParent(newRoot);
 
             root = newRoot;
-            numNodes++;
 
             // Create new sentinel
 
@@ -256,73 +249,5 @@ public class BPlusTree {
 
 
     }
-
-    public int getMaxKeyNumber() {
-        return maxKeyNumber; // it's better to have calculations here instead?
-    }
-
-    public int getNodeCount() {
-//        Node root = getRoot();
-//        if (root == null) {
-//            return 0;
-//        }
-//
-//        return recursiveCountNodes(root);
-        return this.numNodes;
-    }
-
-//    private int recursiveCountNodes(Node node) {
-//        if (node instanceof LeafNode) {
-//            return 1;
-//        } else {
-//            InternalNode internalNode = (InternalNode) node;
-//            int count = 1;
-//
-//            // Recursively count nodes for each child
-//            for (Node child : internalNode.getChildren()) {
-//                count += recursiveCountNodes(child);
-//            }
-//
-//            return count;
-//        }
-//    }
-
-
-
-    public int getNumberOfLevels() {
-        return calculateLevels(sentinelNode);
-    }
-
-    private int calculateLevels(Node node) {
-        if (node == null) {
-            return 0;
-        }
-
-        if (node instanceof InternalNode) {
-            InternalNode internalNode = (InternalNode) node;
-            int maxLevels = 0;
-            for (Node child : internalNode.getChildren()) {
-                maxLevels = Math.max(maxLevels, calculateLevels(child));
-            }
-            return 1 + maxLevels;
-        } else {
-            return 1;
-        }
-    }
-
-    public void printRootKeys() {
-        InternalNode root = (InternalNode) getRoot();
-        System.out.println("Root Node Keys: " + root.getKeys());
-//        if (sentinelNode instanceof InternalNode) {
-//            InternalNode root = (InternalNode) sentinelNode;
-//            System.out.println("Root Node Keys: " + root.getKeys());
-//        } else {
-//            System.out.println("Root Node is not an InternalNode");
-//        }
-    }
-
-
-
-
 
 }

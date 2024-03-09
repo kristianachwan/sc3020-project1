@@ -40,6 +40,10 @@ public class InternalNode extends Node {
         this.children = children;
     }
 
+    public Node getChildByIndex(int index) {
+        return this.children.get(index);
+    }
+
     public Node getChild(int key) {
         return this.children.get(getChildIndex(key));
     }
@@ -64,8 +68,24 @@ public class InternalNode extends Node {
 
         int newIndex = getChildIndex(key);
 
-        keys.add(newIndex, key);
-        children.add(newIndex, newNode);
+        if (newIndex == 0) {
+            Node firstChild = this.children.get(0);
+            int childKey;
+
+            if (firstChild instanceof LeafNode leafChild) {
+                childKey = leafChild.getKeys().get(0);
+            } else {
+                childKey = ((InternalNode) firstChild).getKeys().get(0);
+            }
+
+            keys.add(0, (childKey > key ? childKey : key));
+            children.add((childKey > key ? 0 : 1), newNode);
+        } else {
+            keys.add(newIndex, key);
+            children.add(newIndex + 1, newNode);
+        }
+
+
     }
 
     public ArrayList<Node> splitChildrenList(int x) {
@@ -87,7 +107,7 @@ public class InternalNode extends Node {
 
         return right;
     }
-
+    
     public boolean updateKey(int index) {
         // Returns true if a new key is updated
 
@@ -101,8 +121,8 @@ public class InternalNode extends Node {
             newKey = internalChild.getKeys().get(0);
         }
 
-        if (newKey != this.keys.get(index)) {
-            this.keys.set(index, newKey);
+        if (newKey != this.keys.get(index - 1)) {
+            this.keys.set(index - 1, newKey);
             return true;
         }
 
@@ -116,6 +136,5 @@ public class InternalNode extends Node {
     public int getMinNumOfKeys() {
         return (this.maxNumOfKeys) / 2;
     }
-
 
 }
