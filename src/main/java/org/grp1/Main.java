@@ -66,7 +66,7 @@ public class Main {
 
         System.out.println("The parameter n of the B+ tree: " + index.getMaxKeyNumber());
         System.out.println("The number of nodes of the B+ tree: " + BPlusTree.numNodes);
-        System.out.println("The number of levels of the B+ tree: " + index.calculateNumLevels());
+        System.out.println("The number of levels of the B+ tree: " + BPlusTree.numLevels);
         index.printRootKeys();
         System.out.println("----------Ending experiment 2----------\n\n");
     }
