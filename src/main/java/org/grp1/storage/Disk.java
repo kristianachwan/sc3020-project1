@@ -84,7 +84,6 @@ public class Disk {
             for (Record r : b.getRecords()) {
                 if (r != null && r.getNumVotes() >= lower && r.getNumVotes() <= upper) records.add(r);
             }
-
         }
         return records;
     }
@@ -129,7 +128,7 @@ public class Disk {
         System.out.println("Number of records: " + this.getNumberOfRecords());
         System.out.println("Size of a record: " + recordSize);
         System.out.println("Number of records in a block: " + this.getMaxNumberOfRecordsInBlock());
-        System.out.println("Number of blocks: " + this.getNumberOfBlocks());
+        System.out.println("Number of occupied blocks: " + this.getOccupiedBlock());
     }
 
     public int getNumberOfRecords() {
@@ -142,6 +141,15 @@ public class Disk {
 
     public Block getBlock(int index) {
         return blocks[index];
+    }
+
+    public int getOccupiedBlock() {
+        int count = 0;
+        for (Block b : blocks) {
+            if (b == null) break;
+            count++;
+        }
+        return count;
     }
 
     public int getAccessCount() {
