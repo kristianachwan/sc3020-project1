@@ -1,5 +1,10 @@
 package org.grp1;
 
+import java.text.DecimalFormat;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.TimeUnit;
+
 import org.grp1.constant.Config;
 import org.grp1.exception.InvalidIndexException;
 import org.grp1.exception.LeafFullException;
@@ -84,6 +89,33 @@ public class Main {
 
     public static void runExperiment3() {
         System.out.println("----------Running experiment 3----------");
+        // calculate time for linear search
+        long startTimeLinear = System.nanoTime();
+        List<Record> recordsDisk = disk.getRecordsByNumVotes(500);
+        long endTimeLinear = System.nanoTime();
+        long linearSearchTime =  (endTimeLinear - startTimeLinear);
+
+        // calculate time for index search
+        long startTimeIndex = System.nanoTime();
+        List<Record> votes500 = index.getRecordsByNumVotes(500);
+        long endTimeIndex = System.nanoTime();
+        long indexSearchTime = (endTimeIndex - startTimeIndex);
+
+        // calculate avg of 'averageRatings'
+        double totalAvgRating = 0;
+        for (Record record : votes500) {
+            totalAvgRating += record.getAverageRating();
+        }
+        double averageAvgRating = totalAvgRating / votes500.size();
+        averageAvgRating = Double.parseDouble(String.format("%.2f", averageAvgRating));
+
+        System.out.println("Index Node Access Count: " + BPlusTree.indexNodeAccess);
+        System.out.println("Data Block Access Count: " + BPlusTree.dataBlockAccess);
+        System.out.println("Average Rating: " + averageAvgRating);
+        System.out.println("Index Search Time (ns): " + indexSearchTime);
+        System.out.println("Linear Search Time (ns):" + linearSearchTime);
+        System.out.println("Linear Search Block Access Count: " + disk.getAccessCount());
+        index.resetAccessCount();
         System.out.println("----------Ending experiment 3----------\n\n");
     }
 
@@ -100,11 +132,12 @@ public class Main {
         context.endTimer();
         long indexSearchTime = context.getElapsedTime(TimeUnit.NANOSECONDS);
 
-        long rating = 0;
+        double rating = 0;
         for (Record r : recordsIndex) {
             rating += r.getAverageRating();
         }
-        long avgRating = rating / recordsIndex.size();
+        double avgRating = rating / recordsIndex.size();
+        avgRating = Double.parseDouble(String.format("%.2f", avgRating));
 
         System.out.println("Index Node Access Count: " + BPlusTree.indexNodeAccess);
         System.out.println("Data Block Access Count: " + BPlusTree.dataBlockAccess);
