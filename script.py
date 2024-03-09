@@ -20,7 +20,7 @@ with open(tsv_file_path, mode='r', encoding='utf-8') as file:
 # Prepare data for writing, including calculating the average rating
 output_data = []
 for numVotes, data in ratings_data.items():
-    average_rating = data['sum'] / data['count']
+    average_rating = data['sum']
     output_data.append((numVotes, data['count'], average_rating))
 
 # Sort the output data by numVotes before writing
