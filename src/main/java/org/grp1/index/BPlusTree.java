@@ -5,6 +5,7 @@ import org.grp1.model.Address;
 import org.grp1.model.Bucket;
 import org.grp1.model.Record;
 import org.grp1.storage.Disk;
+import org.grp1.util.Context;
 
 import java.util.ArrayList;
 import java.util.LinkedList;
@@ -43,8 +44,8 @@ public class BPlusTree {
         if (node == null) {
             return new ArrayList<>();
         }
-
         while (!(node instanceof LeafNode leafNode)) {
+            Context.increment();
             InternalNode internalNode = (InternalNode) node;
             node = internalNode.getChild(numVotes);
         }
@@ -52,6 +53,7 @@ public class BPlusTree {
         List<Record> records = new ArrayList<>();
         boolean finished = false;
         while (leafNode != null && !finished) {
+            Context.increment();
             List<Integer> keys = leafNode.getKeys();
             for (int i = 0; i < keys.size(); i++) {
                 if (numVotes == keys.get(i)) {
@@ -164,14 +166,15 @@ public class BPlusTree {
                             internalNode.getChildByIndex(index - 1) instanceof InternalNode && internalNode.getChildByIndex(index - 1).size() > maxKeyNumber / 2
             )) {
                 // Check if the left sibling is available
-                // numNodes++;
+                Context.increment();
                 siblingChild = internalNode.getChildByIndex(index - 1);
             } else if (index < internalNode.size() - 1 && (
                     internalNode.getChildByIndex(index + 1).size() > maxKeyNumber / 2 + 1 ||
                             internalNode.getChildByIndex(index + 1) instanceof InternalNode && internalNode.getChildByIndex(index - 1).size() > maxKeyNumber / 2
             )) {
                 // Check if the right sibling is available
-                // numNodes += 2;
+                Context.increment();
+                Context.increment();
                 siblingChild = internalNode.getChildByIndex(index + 1);
                 isLeftSibling = false;
             }
@@ -235,6 +238,7 @@ public class BPlusTree {
 
     private Node recursiveInsertNode(Node node, Address newAddress, int key) throws LeafFullException {
         // Returns null if there is no need to change the node
+        Context.increment();
 
         if (node instanceof LeafNode leafNode) {
             // It is the leafNode a.k.a. the base case
@@ -288,15 +292,15 @@ public class BPlusTree {
                     InternalNode newSiblingInternalNode;
 
                     newNodeList = internalNode.splitChildrenList(
-                            (internalNode.size() + 2) / 2 + (childIndex + 1 <= (internalNode.size() + 2) / 2 ? -1 : 0));
-                    newKeyList = internalNode.splitKeyList((internalNode.size() + 2) / 2 - 1
+                            (maxKeyNumber + 2) / 2 + (childIndex + 1 <= (maxKeyNumber + 2) / 2 ? -1 : 0));
+                    newKeyList = internalNode.splitKeyList((maxKeyNumber + 2) / 2 - 1
                             + (childIndex + 1 <= (internalNode.size() + 2) / 2 ? -1 : 0));
 
                     newKeyList.remove(0);
 
                     newSiblingInternalNode = new InternalNode(newKeyList, newNodeList, this.maxKeyNumber);
 
-                    if (childIndex + 1 <= (internalNode.size() + 2) / 2) {
+                    if (childIndex + 1 <= (maxKeyNumber + 2) / 2) {
                         internalNode.insert(newNode);
                     } else {
                         newSiblingInternalNode.insert(newNode);
