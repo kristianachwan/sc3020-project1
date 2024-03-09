@@ -49,8 +49,21 @@ public class Main {
 
     public static void runExperiment2() {
         System.out.println("Running experiment 2");
+
+        try {
+            for (Record r : disk.getRecords()) {
+                if (r != null) {
+                    //System.out.println(r.getNumVotes());
+                    index.insertRecord(r);
+                }
+            }
+        } catch (LeafFullException e) {
+            System.out.println(e.getMessage());
+        }
+
         System.out.println("Ending experiment 2");
     }
+
 
     public static void runExperiment3() {
         System.out.println("Running experiment 3");
