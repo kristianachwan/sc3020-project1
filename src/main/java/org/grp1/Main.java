@@ -28,9 +28,9 @@ public class Main {
         index = new BPlusTree(Config.N, disk);
         runExperiment1();
         runExperiment2();
-        //runExperiment3();
-        //runExperiment4();
-        //runExperiment5();
+        runExperiment3();
+        runExperiment4();
+        runExperiment5();
     }
 
     public static void runExperiment1() {
