@@ -124,21 +124,7 @@ public class BPlusTree {
     }
 
     private boolean recursiveDeleteNode(Node node, int numVotes) throws LeafFullException {
-        // Returning true = accessed node has been modified/keys deleted
-        /*
-         * Main idea:
-         * - Recursively find the correct node that contains the record to be deleted
-         * - If the node is a leaf node, delete the record
-         *
-         * - If it is an internal node:
-         * - Find the correct child node that contains the record to be deleted
-         * - Call the function
-         * - Check the size of the child node:
-         * - min_size = maxKeyNumber // 2 for internal nodes, (maxKeyNumber + 1) // 2
-         * for leaf nodes
-         * - Borrow a pointer from left or right sibling (if size > min_size)
-         * - If not possible, attempt to merge with left sibling/right sibling:
-         */
+        // Returning true = one of the children have been deleted (# of child changed)
         if (node instanceof LeafNode leafNode) {
 
             int idx = leafNode.getRecordIndex(numVotes);
@@ -159,7 +145,10 @@ public class BPlusTree {
 
             if (!recursiveDeleteNode(childNode, numVotes)) {
                 // Child node does not change
-                if (index > 0) internalNode.updateKey(index);
+                if (index > 0 && internalNode.updateKey(index)) {
+                    numNodes++;
+                    numLevels++;
+                }
                 return false;
             }
             numNodes++;
