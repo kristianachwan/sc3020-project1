@@ -1,15 +1,14 @@
 # SC3020: Database System Principles - Group 1 
 ## Project 1: B+ Tree Indexing of IMDb Movies Rating & Votes 
 
-Our team members: 
+This project focuses on implementing a SQL database at a basic level. Initially, we implemented a disk storage system to simulate how data is stored on a hard disk drive (HDD). Following that, we introduced a B+ tree for data indexing to enhance the efficiency of data search and retrieval.
+
+#### Team members: 
 - Clayton Fernalo
 - Nema Aarushi
 - Kristian Hadinata Achwan
-- Lau Yong Jie 
-
-## Project Details
-This project focuses on implementing a SQL database at a basic level. Initially, we implemented a disk storage system to simulate how data is stored on a hard disk drive (HDD). Following that, we introduced a B+ tree for data indexing to enhance the efficiency of data search and retrieval.
-
+- Lau Yong Jie
+  
 ## Installation Guides
 It is recommended that IntelliJ IDEA be used to get this project up and running since the development is mainly done there. Regardless, the project should be able to be run everywhere. In this guide, we will focus on the steps required based on IntelliJ IDEA. We recommend you to use the community edition, which can be found [here](https://www.jetbrains.com/idea/download/other.html):  
 
