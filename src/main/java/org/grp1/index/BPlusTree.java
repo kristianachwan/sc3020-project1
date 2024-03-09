@@ -28,7 +28,7 @@ public class BPlusTree {
         this.disk = disk;
     }
 
-    private void resetAccessCount() {
+    public void resetAccessCount() {
         indexNodeAccess = 0;
         dataBlockAccess = 0;
         numNodes = 0;
@@ -124,21 +124,7 @@ public class BPlusTree {
     }
 
     private boolean recursiveDeleteNode(Node node, int numVotes) throws LeafFullException {
-        // Returning true = accessed node has been modified/keys deleted
-        /*
-         * Main idea:
-         * - Recursively find the correct node that contains the record to be deleted
-         * - If the node is a leaf node, delete the record
-         *
-         * - If it is an internal node:
-         * - Find the correct child node that contains the record to be deleted
-         * - Call the function
-         * - Check the size of the child node:
-         * - min_size = maxKeyNumber // 2 for internal nodes, (maxKeyNumber + 1) // 2
-         * for leaf nodes
-         * - Borrow a pointer from left or right sibling (if size > min_size)
-         * - If not possible, attempt to merge with left sibling/right sibling:
-         */
+        // Returning true = one of the children have been deleted (# of child changed)
         if (node instanceof LeafNode leafNode) {
 
             int idx = leafNode.getRecordIndex(numVotes);
@@ -146,6 +132,8 @@ public class BPlusTree {
             if (idx == -1) return false;
 
             leafNode.delete(idx);
+            numNodes++;
+            numLevels++;
 
             return true;
         } else {
@@ -156,8 +144,18 @@ public class BPlusTree {
             int minimumNoOfChild = childNode instanceof LeafNode ? maxKeyNumber / 2 : (maxKeyNumber + 1) / 2;
 
             if (!recursiveDeleteNode(childNode, numVotes)) {
+                // Child node does not change
+                if (index > 0 && internalNode.updateKey(index)) {
+                    numNodes++;
+                    numLevels++;
+                }
                 return false;
             }
+            numNodes++;
+            numLevels++;
+
+            if (index > 0) internalNode.updateKey(index - 1);
+            else internalNode.updateKey(index + 1);
 
             // Checks if the recursive-ed child is above the legal minimum amount of children
             if (childNode.size() >= minimumNoOfChild) {
@@ -172,13 +170,13 @@ public class BPlusTree {
                     internalNode.getChildByIndex(index - 1).size() > maxKeyNumber / 2 + 1 ||
                             internalNode.getChildByIndex(index - 1) instanceof InternalNode && internalNode.getChildByIndex(index - 1).size() > maxKeyNumber / 2
             )) {
-                // Single node access here
+                numNodes++;
                 siblingChild = internalNode.getChildByIndex(index - 1);
             } else if (index < internalNode.size() - 1 && (
                     internalNode.getChildByIndex(index + 1).size() > maxKeyNumber / 2 + 1 ||
                             internalNode.getChildByIndex(index + 1) instanceof InternalNode && internalNode.getChildByIndex(index - 1).size() > maxKeyNumber / 2
             )) {
-                // Double node access here
+                numNodes += 2;
                 siblingChild = internalNode.getChildByIndex(index + 1);
                 isLeftSibling = false;
             }
@@ -427,7 +425,6 @@ public class BPlusTree {
 
         return height;
     }
-
 
 
 }

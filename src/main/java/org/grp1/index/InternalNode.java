@@ -51,7 +51,7 @@ public class InternalNode extends Node {
     }
 
     public int getKey() {
-        return this.keys.get(0);
+        return this.children.get(0).getKey();
     }
 
     public int getKeyByIndex(int index) {
@@ -103,7 +103,7 @@ public class InternalNode extends Node {
             if (firstChild instanceof LeafNode leafChild) {
                 childKey = leafChild.getKey();
             } else {
-                childKey = ((InternalNode) firstChild).getKey();
+                childKey = firstChild.getKey();
             }
 
             keys.add(0, (childKey > key ? childKey : key));
@@ -135,7 +135,7 @@ public class InternalNode extends Node {
 
         return right;
     }
-    
+
     public boolean updateKey(int index) {
         // Returns true if a new key is updated
 
