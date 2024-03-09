@@ -12,13 +12,11 @@ import org.grp1.util.Context;
 import org.grp1.util.RecordParser;
 import org.grp1.util.TSVReader;
 
-import java.util.HashSet;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 public class Main {
 
-    private static final HashSet<Integer> hashSet = new HashSet<>();
     private static Disk disk;
     private static BPlusTree index;
 
@@ -61,8 +59,6 @@ public class Main {
                     int key = block.getRecord(j).getNumVotes();
 
                     index.insertAddress(addr, key);
-
-                    hashSet.add(key);
                 }
             }
         } catch (LeafFullException e) {
@@ -72,19 +68,10 @@ public class Main {
         } catch (Error e) {
             System.out.println(e.getMessage());
         }
-        for (int i : hashSet) {
-            try {
-                index.deleteRecord(i);
-            } catch (Exception e) {
-                System.out.println(i);
-                System.out.println(e.getMessage());
-            }
-
-        }
         System.out.println("The parameter n of the B+ tree: " + index.getMaxKeyNumber());
         System.out.println("The number of nodes of the B+ tree: " + index.calculateNodes());
         System.out.println("The number of levels of the B+ tree: " + index.calculateNumLevels());
-        //index.printRootKeys();
+        index.printRootKeys();
         System.out.println("----------Ending experiment 2----------\n\n");
     }
 
