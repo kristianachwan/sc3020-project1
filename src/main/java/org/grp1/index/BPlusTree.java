@@ -24,6 +24,25 @@ public class BPlusTree {
         this.disk = disk;
     }
 
+    public boolean testTree() {
+        Node root = getRoot();
+
+        while (!(root instanceof LeafNode cur)) {
+            root = (Node) root.getChildAsNodeChild(0);
+        }
+
+        while (cur != null) {
+            for (int i = 1; i < cur.getKeys().size(); i++) {
+                if (cur.getKeyByIndex(i) <= cur.getKeyByIndex(i - 1)) {
+                    return false;
+                }
+            }
+            cur = cur.getNext();
+        }
+
+        return true;
+    }
+
 
     private int getNodeFirstKey(Node node) {
         if (node instanceof LeafNode) {
@@ -138,14 +157,9 @@ public class BPlusTree {
 
             if (!recursiveDeleteNode(childNode, numVotes)) {
                 // Child node does not change
-                if (index > 0 && internalNode.updateKey(index)) {
-                    // numNodes++;
-                    // numLevels++;
-                }
+                if (index > 0) internalNode.updateKey(index);
                 return false;
             }
-            // numNodes++;
-            // numLevels++;
 
             if (index > 0) internalNode.updateKey(index - 1);
             else internalNode.updateKey(index + 1);
@@ -206,21 +220,21 @@ public class BPlusTree {
                 if (childNode instanceof LeafNode childLeafNode) {
 
                     for (int i = 0; i < index; i++) {
-                        siblingChild.insert(childLeafNode.getBucket(i));
+                        siblingChild.insert(childLeafNode.getBucketByIndex(i));
                     }
 
                     for (int i = index + 1; i < childLeafNode.size(); i++) {
-                        siblingChild.insert(childLeafNode.getBucket((i)));
+                        siblingChild.insert(childLeafNode.getBucketByIndex((i)));
                     }
                 } else {
                     InternalNode childInternalNode = (InternalNode) childNode;
 
                     for (int i = 0; i < index; i++) {
-                        siblingChild.insert(childInternalNode.getChild(i));
+                        siblingChild.insert(childInternalNode.getChildByIndex(i));
                     }
 
                     for (int i = index + 1; i <= childInternalNode.size(); i++) {
-                        siblingChild.insert(childInternalNode.getChild((i)));
+                        siblingChild.insert(childInternalNode.getChildByIndex((i)));
                     }
                 }
 
