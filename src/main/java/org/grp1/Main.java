@@ -166,8 +166,8 @@ public class Main {
         double linearDeleteTime = ((double) Context.getElapsedTime(TimeUnit.NANOSECONDS)) / 1000.0;
         // System.out.println(index.getRecordsByNumVotes(1000).size());
 
-        System.out.println("Index Node Update Count: " + Context.getCount());
-        System.out.println("Number of level updated: " + Context.getSetCount());
+        System.out.println("The number of nodes of the B+ tree: " + index.calculateNodes());
+        System.out.println("The number of levels of the B+ tree: " + index.calculateNumLevels());
         index.printRootKeys();
         System.out.println("Index Delete Time (μs): " + indexDeleteTime);
         System.out.println("Linear Delete Time (μs): " + linearDeleteTime);
