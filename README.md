@@ -1,7 +1,7 @@
 # SC3020: Database System Principles - Group 1 
 ## Project 1: B+ Tree Indexing of IMDb Movies Rating & Votes 
 
-This project focuses on implementing a SQL database at a basic level. Initially, we implemented a disk storage system to simulate how data is stored on a hard disk drive (HDD). Following that, we introduced a B+ tree for data indexing to enhance the efficiency of data search and retrieval.
+This project focuses on implementing a relational database at a basic level. Initially, we implemented a disk storage system to simulate how data is stored on a disk. Following that, we introduced a B+ tree for data indexing to enhance the efficiency of data search and retrieval. 
 
 #### Team members: 
 - Clayton Fernalo
@@ -21,4 +21,3 @@ To start, you can clone or download the repository this repository. After that, 
 ## Tech Stack
 - JDK 20
 - Gradle
-- IntelliJ [For development]
