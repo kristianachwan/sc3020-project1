@@ -253,6 +253,7 @@ public class BPlusTree {
 
                 LeafNode newLeafNode = new LeafNode(leafNode, leafNode.getNext(), null, newKeyList, newRecordList,
                         this.maxKeyNumber);
+                BPlusTree.numNodes++;
 
                 // Modify the old leafnode
                 if (leafNode.getNext() != null) {
@@ -283,6 +284,7 @@ public class BPlusTree {
             if (childIndex > 0) internalNode.updateKey(childIndex);
 
             if (newNode != null) {
+                BPlusTree.numNodes++;
                 if (internalNode.isFull()) {
 
                     List<Node> newNodeList;
@@ -297,6 +299,7 @@ public class BPlusTree {
                     newKeyList.remove(0);
 
                     newSiblingInternalNode = new InternalNode(newKeyList, newNodeList, this.maxKeyNumber);
+                    BPlusTree.numNodes++;
 
                     if (childIndex + 1 <= (internalNode.size() + 2) / 2) {
                         internalNode.insert(newNode);
@@ -335,6 +338,7 @@ public class BPlusTree {
             sentinelNode.setChildren(sentinelKeyList, sentinelNodeList);
 
             root = newNode;
+            BPlusTree.numNodes++;
         }
 
         Node newNode = recursiveInsertNode(root, newRecord);
@@ -355,6 +359,7 @@ public class BPlusTree {
             newNode.setParent(newRoot);
 
             root = newRoot;
+            BPlusTree.numNodes++;
 
             // Create new sentinel
 
@@ -389,6 +394,11 @@ public class BPlusTree {
 
     public int getMaxKeyNumber() {
         return maxKeyNumber; // it's better to have calculations here instead?
+    }
+    
+    public void printRootKeys() {
+        InternalNode root = (InternalNode) getRoot();
+        System.out.println("Root Node Keys: " + root.getKeys());
     }
 
 }

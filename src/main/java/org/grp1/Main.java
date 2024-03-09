@@ -11,6 +11,7 @@ import org.grp1.util.Context;
 import org.grp1.util.RecordParser;
 import org.grp1.util.TSVReader;
 import org.grp1.index.BPlusTree;
+import org.grp1.index.InternalNode;
 
 //TIP To <b>Run</b> code, press <shortcut actionId="Run"/> or
 // click the <icon src="AllIcons.Actions.Execute"/> icon in the gutter.
@@ -62,8 +63,8 @@ public class Main {
         }
 
         System.out.println("The parameter n of the B+ tree: " + index.getMaxKeyNumber());
-        System.out.println("The number of nodes of the B+ tree: " + index.getNodeCount());
-        System.out.println("The number of levels of the B+ tree: " + index.getNumberOfLevels());
+        System.out.println("The number of nodes of the B+ tree: " + BPlusTree.numNodes);
+        System.out.println("The number of levels of the B+ tree: " + BPlusTree.numLevels);
         index.printRootKeys();
         System.out.println("----------Ending experiment 2----------\n\n");
     }
@@ -77,23 +78,21 @@ public class Main {
     public static void runExperiment4() {
         System.out.println("----------Running experiment 4----------");
 
-        List<Record> records;
-
         context.startTimer();
-        records = disk.getRecordsByNumVotes(30000, 50000);
+        List<Record> recordsDisk = disk.getRecordsByNumVotes(30000, 50000);
         context.endTimer();
         long linearSearchTime = context.getElapsedTime(TimeUnit.NANOSECONDS);
 
         context.startTimer();
-        records = index.getRecordsByNumVotes(30000, 50000);
+        List<Record> recordsIndex = index.getRecordsByNumVotes(30000, 50000);
         context.endTimer();
         long indexSearchTime = context.getElapsedTime(TimeUnit.NANOSECONDS);
 
         long rating = 0;
-        for (Record r : records) {
+        for (Record r : recordsIndex) {
             rating += r.getAverageRating();
         }
-        long avgRating = rating / records.size();
+        long avgRating = rating / recordsIndex.size();
 
         System.out.println("Index Node Access Count: " + BPlusTree.indexNodeAccess);
         System.out.println("Data Block Access Count: " + BPlusTree.dataBlockAccess);
@@ -107,17 +106,18 @@ public class Main {
 
     public static void runExperiment5() {
         System.out.println("----------Running experiment 5----------");
-        /*context.startTimer();
+        context.startTimer();
         try {
-            index.deleteRecord(1000);
+            //index.deleteRecord(1000);
         } catch (Exception e) {
             System.out.println(e.getMessage());
         }
         context.endTimer();
         long indexDeleteTime = context.getElapsedTime(TimeUnit.NANOSECONDS);
-        System.out.println(index.getRecordsByNumVotes(1000).size());*/
+        System.out.println(index.getRecordsByNumVotes(1000).size());
+        System.out.println("Index Delete Time (ns): " + indexDeleteTime);
 
-        context.startTimer();
+        /*context.startTimer();
         try {
             context.startTimer();
             disk.deleteRecordsByNumVotes(1000);
@@ -129,7 +129,7 @@ public class Main {
             System.out.println("Number of Records after Delete: " + disk.getNumberOfRecords());
         } catch (Exception e) {
             e.printStackTrace();
-        }
+        }*/
 
         System.out.println("----------Ending experiment 5----------\n\n");
     }
