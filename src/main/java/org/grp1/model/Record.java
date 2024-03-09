@@ -1,8 +1,6 @@
 package org.grp1.model;
 
-import org.grp1.index.NodeChild;
-
-public class Record implements NodeChild {
+public class Record {
     private String tconst;
     private float averageRating;
     private int numVotes;

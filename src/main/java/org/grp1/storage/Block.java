@@ -1,14 +1,14 @@
 package org.grp1.storage;
 
-import org.grp1.model.Record;
 import org.grp1.constant.ErrorMessage;
 import org.grp1.exception.BlockFullException;
 import org.grp1.exception.InvalidIndexException;
+import org.grp1.model.Record;
 
 public class Block {
 
+    private final Record[] records;
     private int numOfRecord;
-    private Record[] records;
 
     public Block(int size) {
         this.numOfRecord = 0;

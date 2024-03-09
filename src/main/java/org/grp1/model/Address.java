@@ -1,10 +1,10 @@
 package org.grp1.model;
 
-public class Pointer {
+public class Address {
     int blockIndex;
     int offset;
 
-    public Pointer(int blockIndex, int offset) {
+    public Address(int blockIndex, int offset) {
         this.blockIndex = blockIndex;
         this.offset = offset;
     }
