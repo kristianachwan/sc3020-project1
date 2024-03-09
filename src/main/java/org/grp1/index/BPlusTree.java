@@ -334,9 +334,11 @@ public class BPlusTree {
                 }
 
                 leafNode.clear();
-                leafNode.setRecords(new ArrayList<>(keys.subList(0, (maxKeyNumber + 1) / 2)), new ArrayList<>(newBuckets.subList(0, (maxKeyNumber + 1) / 2)));
+                
+                // ceil( (maxKeyNumber + 1)/2 ) ) = (maxKeyNumber+2)//2
+                leafNode.setRecords(new ArrayList<>(keys.subList(0, (maxKeyNumber + 2) / 2)), new ArrayList<>(newBuckets.subList(0, (maxKeyNumber + 2) / 2)));
 
-                LeafNode newLeafNode = new LeafNode(leafNode, leafNode.getNext(), null, keys.subList((maxKeyNumber + 1) / 2, maxKeyNumber + 1), newBuckets.subList((maxKeyNumber + 1) / 2, maxKeyNumber + 1), this.maxKeyNumber);
+                LeafNode newLeafNode = new LeafNode(leafNode, leafNode.getNext(), null, keys.subList((maxKeyNumber + 2) / 2, maxKeyNumber + 1), newBuckets.subList((maxKeyNumber + 2) / 2, maxKeyNumber + 1), this.maxKeyNumber);
 
                 // Modify the old leaf node
                 if (leafNode.getNext() != null) {
@@ -390,7 +392,7 @@ public class BPlusTree {
                     }
 
                     internalNode.clear();
-                    int splitIndex = (maxKeyNumber + 2) / 2;
+                    int splitIndex = (maxKeyNumber + 3) / 2;
                     internalNode.setRecords(new ArrayList<>(keys.subList(0, splitIndex - 1)), new ArrayList<>(newNodes.subList(0, splitIndex)));
 
                     return new InternalNode(keys.subList(splitIndex, maxKeyNumber + 1), newNodes.subList(splitIndex, maxKeyNumber + 2), this.maxKeyNumber);
