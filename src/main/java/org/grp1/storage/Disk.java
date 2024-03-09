@@ -1,37 +1,31 @@
 package org.grp1.storage;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Timer;
-
 import org.grp1.constant.ErrorMessage;
 import org.grp1.exception.BlockFullException;
 import org.grp1.exception.DiskFullException;
 import org.grp1.exception.InvalidIndexException;
+import org.grp1.model.Pointer;
 import org.grp1.model.Record;
-import org.grp1.util.Context;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 public class Disk {
 
-    private int accessCount;
-
-    private int numOfRecord;
-
     private final int diskSize;
-
     private final int blockSize;
-    
     private final int recordSize;
-
-    private Block[] blocks;
+    private final Block[] blocks;
+    private int accessCount;
+    private int numOfRecord;
 
     public Disk(int diskSize, int blockSize, int recordSize) {
         this.numOfRecord = 0;
         this.diskSize = diskSize;
         this.blockSize = blockSize;
         this.recordSize = recordSize;
-        this.blocks = new Block[diskSize/blockSize];
+        this.blocks = new Block[diskSize / blockSize];
     }
 
     public void insertRecord(Record r) throws DiskFullException {
@@ -56,12 +50,21 @@ public class Disk {
 
     }
 
+    public Record getRecordByPointer(Pointer pointer) {
+        try {
+            return this.blocks[pointer.getBlockIndex()].getRecord(pointer.getOffset());
+        } catch (Exception e) {
+            System.out.println("Record could not be found in the block");
+        }
+        return null;
+    }
+
     public List<Record> getRecordsByNumVotes(int numVotes) {
         accessCount = 0;
         List<Record> records = new ArrayList<>();
         for (Block b : blocks) {
 
-            if (b == null) break; 
+            if (b == null) break;
 
             accessCount++;
             for (Record r : b.getRecords()) {
@@ -75,13 +78,13 @@ public class Disk {
         accessCount = 0;
         List<Record> records = new ArrayList<>();
         for (Block b : blocks) {
-            if (b == null) break; 
+            if (b == null) break;
 
             accessCount++;
             for (Record r : b.getRecords()) {
                 if (r != null && r.getNumVotes() >= lower && r.getNumVotes() <= upper) records.add(r);
             }
-            
+
         }
         return records;
     }
@@ -90,7 +93,7 @@ public class Disk {
         accessCount = 0;
         try {
             for (Block b : blocks) {
-                if (b == null) break; 
+                if (b == null) break;
 
                 accessCount++;
                 for (int i = 0; i < b.getRecords().length; i++) {
@@ -100,7 +103,7 @@ public class Disk {
                     }
                 }
             }
-        } catch (InvalidIndexException e ) {
+        } catch (InvalidIndexException e) {
             throw new InvalidIndexException(ErrorMessage.INVALID_INDEX_MSG);
         }
     }

@@ -2,6 +2,7 @@ package org.grp1.index;
 
 import org.grp1.exception.LeafFullException;
 import org.grp1.model.Record;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -395,7 +396,7 @@ public class BPlusTree {
     public int getMaxKeyNumber() {
         return maxKeyNumber; // it's better to have calculations here instead?
     }
-    
+
     public void printRootKeys() {
         InternalNode root = (InternalNode) getRoot();
         System.out.println("Root Node Keys: " + root.getKeys());
