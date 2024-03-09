@@ -4,7 +4,9 @@ import org.grp1.exception.LeafFullException;
 import org.grp1.model.Record;
 
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Queue;
 
 public class BPlusTree {
 
@@ -401,5 +403,31 @@ public class BPlusTree {
         InternalNode root = (InternalNode) getRoot();
         System.out.println("Root Node Keys: " + root.getKeys());
     }
+
+    public int calculateNumLevels() {
+        Node root = getRoot();
+        int height = 0;
+        if (root == null) {
+            return height;
+        }
+
+        Queue<Node> queue = new LinkedList<>();
+        queue.add(root);
+
+        while (!queue.isEmpty()) {
+            int levelLength = queue.size();
+            for (int i = 0; i < levelLength; i++) {
+                Node node = queue.remove();
+                if (node instanceof InternalNode) {
+                    queue.addAll(((InternalNode) node).getChildren());
+                }
+            }
+            height++;
+        }
+
+        return height;
+    }
+
+
 
 }
