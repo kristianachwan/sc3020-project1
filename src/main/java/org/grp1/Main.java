@@ -114,12 +114,12 @@ public class Main {
         Context.reset();
         System.out.println("----------Running experiment 4----------");
         Context.startTimer();
-        List<Record> recordsDisk = disk.getRecordsByNumVotes(30000, 50000);
+        List<Record> recordsDisk = disk.getRecordsByNumVotes(30000, 40000);
         Context.endTimer();
         double linearSearchTime = ((double) Context.getElapsedTime(TimeUnit.NANOSECONDS)) / 1000.0;
 
         Context.startTimer();
-        List<Record> recordsIndex = index.getRecordsByNumVotes(30000, 50000);
+        List<Record> recordsIndex = index.getRecordsByNumVotes(30000, 40000);
         Context.endTimer();
         double indexSearchTime = ((double) Context.getElapsedTime(TimeUnit.NANOSECONDS)) / 1000.0;
 
