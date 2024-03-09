@@ -13,7 +13,7 @@ public class BPlusTree {
 
     private int getNodeFirstKey(Node node) {
         if (node instanceof LeafNode) {
-            return ((LeafNode) node).getRecordByIndex(0).getNumVotes();
+            return ((LeafNode) node).getKeys().get(0);
         } else {
             return ((InternalNode) node).getKeys().get(0);
         }
@@ -139,9 +139,11 @@ public class BPlusTree {
             InternalNode internalNode = (InternalNode) node;
 
             int childIndex = internalNode.getChildIndex(newRecord.getNumVotes());
-            Node child = internalNode.getChild(childIndex);
+            Node child = internalNode.getChildByIndex(childIndex);
 
             Node newNode = recursiveInsertNode(child, newRecord);
+            // Update child's key
+            if (childIndex > 0) internalNode.updateKey(childIndex);
 
             if (newNode != null) {
                 int newNodeKey = getNodeFirstKey(newNode);
@@ -210,7 +212,6 @@ public class BPlusTree {
             nodeList.add(root);
             nodeList.add(newNode);
 
-            keyList.add(getNodeFirstKey(root));
             keyList.add(getNodeFirstKey(newNode));
 
             InternalNode newRoot = new InternalNode(keyList, nodeList, this.maxKeyNumber);
