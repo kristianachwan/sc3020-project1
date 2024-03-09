@@ -28,7 +28,7 @@ public class BPlusTree {
         this.disk = disk;
     }
 
-    private void resetAccessCount() {
+    public void resetAccessCount() {
         indexNodeAccess = 0;
         dataBlockAccess = 0;
         numNodes = 0;
@@ -156,8 +156,12 @@ public class BPlusTree {
             int minimumNoOfChild = childNode instanceof LeafNode ? maxKeyNumber / 2 : (maxKeyNumber + 1) / 2;
 
             if (!recursiveDeleteNode(childNode, numVotes)) {
+                if (index > 0) internalNode.updateKey(index);
                 return false;
             }
+
+            if (index > 0) internalNode.updateKey(index - 1);
+            else internalNode.updateKey(index + 1);
 
             // Checks if the recursive-ed child is above the legal minimum amount of children
             if (childNode.size() >= minimumNoOfChild) {
@@ -427,7 +431,6 @@ public class BPlusTree {
 
         return height;
     }
-
 
 
 }
