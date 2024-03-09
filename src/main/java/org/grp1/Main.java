@@ -12,11 +12,13 @@ import org.grp1.util.Context;
 import org.grp1.util.RecordParser;
 import org.grp1.util.TSVReader;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 public class Main {
 
+    private static final HashSet<Integer> hashSet = new HashSet<>();
     private static Disk disk;
     private static BPlusTree index;
 
@@ -26,9 +28,9 @@ public class Main {
         index = new BPlusTree(Config.N, disk);
         runExperiment1();
         runExperiment2();
-        runExperiment3();
-        runExperiment4();
-        runExperiment5();
+        //runExperiment3();
+        //runExperiment4();
+        //runExperiment5();
     }
 
     public static void runExperiment1() {
@@ -52,6 +54,7 @@ public class Main {
         System.out.println("----------Running experiment 2----------");
         try {
             for (int i = 0; i < disk.getOccupiedBlock(); i++) {
+
                 Block block = disk.getBlock(i);
                 int numOfRecords = block.getNumberOfRecords();
                 for (int j = 0; j < numOfRecords; j++) {
@@ -59,7 +62,10 @@ public class Main {
                     Address addr = new Address(i, j);
                     int key = block.getRecord(j).getNumVotes();
 
+
                     index.insertAddress(addr, key);
+
+                    hashSet.add(key);
                 }
             }
         } catch (LeafFullException e) {
@@ -69,11 +75,25 @@ public class Main {
         } catch (Error e) {
             System.out.println(e.getMessage());
         }
+        int cnta = 0;
+        for (int i : hashSet) {
+            try {
+                if (i == 5027) {
+                    System.out.println("Test");
+                }
 
+                index.deleteRecord(i);
+            } catch (Exception e) {
+                System.out.println(i);
+                System.out.println(e.getMessage());
+            }
+
+        }
+        int cntx = 0;
         System.out.println("The parameter n of the B+ tree: " + index.getMaxKeyNumber());
         System.out.println("The number of nodes of the B+ tree: " + index.calculateNodes());
         System.out.println("The number of levels of the B+ tree: " + index.calculateNumLevels());
-        index.printRootKeys();
+        //index.printRootKeys();
         System.out.println("----------Ending experiment 2----------\n\n");
     }
 

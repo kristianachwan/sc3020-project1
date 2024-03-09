@@ -118,8 +118,17 @@ public class LeafNode extends Node {
         return keys.size();
     }
 
+    public void clear() {
+        this.buckets = new ArrayList<>();
+        this.keys = new ArrayList<>();
+    }
+
     public List<Integer> getKeys() {
         return this.keys;
+    }
+
+    public List<Bucket> getBuckets() {
+        return this.buckets;
     }
 
     public void delete(int index) {
