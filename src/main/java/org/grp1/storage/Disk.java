@@ -4,7 +4,7 @@ import org.grp1.constant.ErrorMessage;
 import org.grp1.exception.BlockFullException;
 import org.grp1.exception.DiskFullException;
 import org.grp1.exception.InvalidIndexException;
-import org.grp1.model.Pointer;
+import org.grp1.model.Address;
 import org.grp1.model.Record;
 
 import java.util.ArrayList;
@@ -50,7 +50,7 @@ public class Disk {
 
     }
 
-    public Record getRecordByPointer(Pointer pointer) {
+    public Record getRecordByPointer(Address pointer) {
         try {
             return this.blocks[pointer.getBlockIndex()].getRecord(pointer.getOffset());
         } catch (Exception e) {
