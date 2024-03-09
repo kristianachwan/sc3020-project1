@@ -150,6 +150,7 @@ public class Main {
         } catch (Exception e) {
             e.printStackTrace();
         }
+        double linearDeleteTime = ((double) Context.getElapsedTime(TimeUnit.NANOSECONDS)) / 1000.0;
 
         Context.reset();
         try {
@@ -161,19 +162,12 @@ public class Main {
         }
 
         double indexDeleteTime = ((double) Context.getElapsedTime(TimeUnit.NANOSECONDS)) / 1000.0;
-
-
-        double linearDeleteTime = ((double) Context.getElapsedTime(TimeUnit.NANOSECONDS)) / 1000.0;
-        // System.out.println(index.getRecordsByNumVotes(1000).size());
-
         System.out.println("The number of nodes of the B+ tree: " + index.calculateNodes());
         System.out.println("The number of levels of the B+ tree: " + index.calculateNumLevels());
         index.printRootKeys();
         System.out.println("Index Delete Time (μs): " + indexDeleteTime);
         System.out.println("Linear Delete Time (μs): " + linearDeleteTime);
         System.out.println("Linear Delete Block Access Count: " + disk.getAccessCount());
-
-
         System.out.println("----------Ending experiment 5----------\n\n");
     }
 }
