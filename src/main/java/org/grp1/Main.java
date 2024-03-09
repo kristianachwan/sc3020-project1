@@ -50,7 +50,6 @@ public class Main {
 
     public static void runExperiment2() {
         System.out.println("----------Running experiment 2----------");
-
         try {
             for (int i = 0; i < disk.getOccupiedBlock(); i++) {
                 Block block = disk.getBlock(i);
@@ -72,7 +71,7 @@ public class Main {
         }
 
         System.out.println("The parameter n of the B+ tree: " + index.getMaxKeyNumber());
-        System.out.println("The number of nodes of the B+ tree: " + BPlusTree.numNodes);
+        System.out.println("The number of nodes of the B+ tree: " + index.calculateNodes());
         System.out.println("The number of levels of the B+ tree: " + index.calculateNumLevels());
         index.printRootKeys();
         System.out.println("----------Ending experiment 2----------\n\n");
@@ -165,8 +164,8 @@ public class Main {
         double linearDeleteTime = (double) context.getElapsedTime(TimeUnit.NANOSECONDS) / 1000;
         // System.out.println(index.getRecordsByNumVotes(1000).size());
 
-        System.out.println("Index Node Update Count: " + BPlusTree.numNodes);
-        System.out.println("Number of level updated: " + BPlusTree.numLevels);
+        // System.out.println("Index Node Update Count: " + BPlusTree.numNodes);
+        // System.out.println("Number of level updated: " + BPlusTree.numLevels);
         index.printRootKeys();
         System.out.println("Index Delete Time (μs): " + indexDeleteTime);
         System.out.println("Linear Delete Time (μs): " + linearDeleteTime);

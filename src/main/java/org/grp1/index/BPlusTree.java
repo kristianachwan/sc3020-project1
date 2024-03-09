@@ -15,12 +15,9 @@ public class BPlusTree {
 
     public static int indexNodeAccess = 0;
     public static int dataBlockAccess = 0;
-    public static int numNodes = 0;
-    public static int numLevels = 0;
     private final int maxKeyNumber;
     private final Disk disk;
     private final InternalNode sentinelNode;
-
 
     public BPlusTree(int maxKeyNumber, Disk disk) {
         this.maxKeyNumber = maxKeyNumber;
@@ -31,8 +28,6 @@ public class BPlusTree {
     public void resetAccessCount() {
         indexNodeAccess = 0;
         dataBlockAccess = 0;
-        numNodes = 0;
-        numLevels = 0;
     }
 
     private int getNodeFirstKey(Node node) {
@@ -132,8 +127,6 @@ public class BPlusTree {
             if (idx == -1) return false;
 
             leafNode.delete(idx);
-            numNodes++;
-            numLevels++;
 
             return true;
         } else {
@@ -146,13 +139,13 @@ public class BPlusTree {
             if (!recursiveDeleteNode(childNode, numVotes)) {
                 // Child node does not change
                 if (index > 0 && internalNode.updateKey(index)) {
-                    numNodes++;
-                    numLevels++;
+                    // numNodes++;
+                    // numLevels++;
                 }
                 return false;
             }
-            numNodes++;
-            numLevels++;
+            // numNodes++;
+            // numLevels++;
 
             if (index > 0) internalNode.updateKey(index - 1);
             else internalNode.updateKey(index + 1);
@@ -170,18 +163,21 @@ public class BPlusTree {
                     internalNode.getChildByIndex(index - 1).size() > maxKeyNumber / 2 + 1 ||
                             internalNode.getChildByIndex(index - 1) instanceof InternalNode && internalNode.getChildByIndex(index - 1).size() > maxKeyNumber / 2
             )) {
-                numNodes++;
+                // Check if the left sibling is available
+                // numNodes++;
                 siblingChild = internalNode.getChildByIndex(index - 1);
             } else if (index < internalNode.size() - 1 && (
                     internalNode.getChildByIndex(index + 1).size() > maxKeyNumber / 2 + 1 ||
                             internalNode.getChildByIndex(index + 1) instanceof InternalNode && internalNode.getChildByIndex(index - 1).size() > maxKeyNumber / 2
             )) {
-                numNodes += 2;
+                // Check if the right sibling is available
+                // numNodes += 2;
                 siblingChild = internalNode.getChildByIndex(index + 1);
                 isLeftSibling = false;
             }
 
             if (siblingChild != null) {
+                // Found a sibling child to borrow from
                 int indexToBeDeleted = (isLeftSibling ? siblingChild.size() - 1 : 0);
 
                 NodeChild child = siblingChild.getChildAsNodeChild(indexToBeDeleted + (siblingChild instanceof LeafNode ? 0 : 1));
@@ -231,7 +227,8 @@ public class BPlusTree {
 
                 return true;
             } else {
-                throw new Error("No sibling is found ?");
+                // This should not happen under large branching factors.
+                throw new Error("No sibling is found");
             }
         }
     }
@@ -248,13 +245,12 @@ public class BPlusTree {
                 // n + 1
                 // if split at (n+2)//2 => n//2 + 1
                 List<Bucket> newRecordList = leafNode
-                        .splitBucketList((leafNode.size() + 2) / 2 + (idx <= leafNode.size() / 2 ? -1 : 0));
+                        .splitBucketList((leafNode.size() + 2) / 2 + (idx <= maxKeyNumber / 2 ? -1 : 0));
                 List<Integer> newKeyList = leafNode
-                        .splitKeyList((leafNode.size() + 2) / 2 + (idx <= leafNode.size() / 2 ? -1 : 0));
+                        .splitKeyList((leafNode.size() + 2) / 2 + (idx <= maxKeyNumber / 2 ? -1 : 0));
 
                 LeafNode newLeafNode = new LeafNode(leafNode, leafNode.getNext(), null, newKeyList, newRecordList,
                         this.maxKeyNumber);
-                BPlusTree.numNodes++;
 
                 // Modify the old leafnode
                 if (leafNode.getNext() != null) {
@@ -262,7 +258,7 @@ public class BPlusTree {
                 }
                 leafNode.setNext(newLeafNode);
 
-                if (idx <= leafNode.size() / 2) {
+                if (idx <= maxKeyNumber / 2) {
                     leafNode.insertAddress(newAddress, key);
                 } else {
                     newLeafNode.insertAddress(newAddress, key);
@@ -285,7 +281,6 @@ public class BPlusTree {
             if (childIndex > 0) internalNode.updateKey(childIndex);
 
             if (newNode != null) {
-                BPlusTree.numNodes++;
                 if (internalNode.isFull()) {
 
                     List<Node> newNodeList;
@@ -300,7 +295,6 @@ public class BPlusTree {
                     newKeyList.remove(0);
 
                     newSiblingInternalNode = new InternalNode(newKeyList, newNodeList, this.maxKeyNumber);
-                    BPlusTree.numNodes++;
 
                     if (childIndex + 1 <= (internalNode.size() + 2) / 2) {
                         internalNode.insert(newNode);
@@ -339,7 +333,6 @@ public class BPlusTree {
             sentinelNode.setChildren(sentinelKeyList, sentinelNodeList);
 
             root = newNode;
-            BPlusTree.numNodes++;
         }
 
         Node newNode = recursiveInsertNode(root, newAddress, key);
@@ -360,7 +353,6 @@ public class BPlusTree {
             newNode.setParent(newRoot);
 
             root = newRoot;
-            BPlusTree.numNodes++;
 
             // Create new sentinel
 
@@ -426,5 +418,28 @@ public class BPlusTree {
         return height;
     }
 
+    public int calculateNodes() {
+        Node root = getRoot();
+        int cnt = 0;
+        if (root == null) {
+            return cnt;
+        }
 
+        Queue<Node> queue = new LinkedList<>();
+        queue.add(root);
+
+        while (!queue.isEmpty()) {
+
+            int levelLength = queue.size();
+            for (int i = 0; i < levelLength; i++) {
+                Node node = queue.remove();
+                cnt++;
+                if (node instanceof InternalNode) {
+                    queue.addAll(((InternalNode) node).getChildren());
+                }
+            }
+        }
+
+        return cnt;
+    }
 }
