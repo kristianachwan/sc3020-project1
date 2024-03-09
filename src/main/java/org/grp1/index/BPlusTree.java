@@ -14,16 +14,37 @@ import java.util.Queue;
 
 public class BPlusTree {
 
+    /**
+     * The number of maximum key inside a node
+     */
     private final int maxKeyNumber;
+
+    /**
+     * The disk that contains this BPlus Tree
+     */
     private final Disk disk;
+    /**
+     * Sentinel node that helps us to generalize the logic, also known as dummy/ghost node
+     */
     private final InternalNode sentinelNode;
 
+    /**
+     * Constructor to instantiate the BPlusTree
+     *
+     * @param maxKeyNumber The maximum number of key
+     * @param disk         The disk where this BPlusTree belong
+     */
     public BPlusTree(int maxKeyNumber, Disk disk) {
         this.maxKeyNumber = maxKeyNumber;
         this.sentinelNode = new InternalNode(new ArrayList<>(), new ArrayList<>(), this.maxKeyNumber);
         this.disk = disk;
     }
 
+    /**
+     * The function to test the correctness of the tree based on the key value
+     *
+     * @return Whether the tree is valid or not
+     */
     public boolean testTree() {
         Node root = getRoot();
 
@@ -44,6 +65,12 @@ public class BPlusTree {
     }
 
 
+    /**
+     * The function that returns the first key
+     *
+     * @param node the node that it wants to get the first key
+     * @return the first key that belongs to the node
+     */
     private int getNodeFirstKey(Node node) {
         if (node instanceof LeafNode) {
             return ((LeafNode) node).getKeys().get(0);
@@ -52,6 +79,12 @@ public class BPlusTree {
         }
     }
 
+    /**
+     * The function that get the record by numVotes
+     *
+     * @param numVotes The associated target numVotes
+     * @return The list of records that match numVotes
+     */
     public List<Record> getRecordsByNumVotes(int numVotes) {
         Node node = getRoot();
         Context.increment();
@@ -88,6 +121,13 @@ public class BPlusTree {
         return records;
     }
 
+    /**
+     * The function that get the multiple records by the range of numVotes
+     *
+     * @param lowerNumVotes  The lower bound of target
+     * @param higherNumVotes The upper bound of target
+     * @return The list of Records that fall under the range
+     */
     public List<Record> getRecordsByNumVotes(int lowerNumVotes, int higherNumVotes) {
         Node node = getRoot();
         Context.increment();
@@ -128,6 +168,11 @@ public class BPlusTree {
         return recordsResult;
     }
 
+    /**
+     * The function to return the root of the tree
+     *
+     * @return The root of the BPlus Tree
+     */
     public Node getRoot() {
         List<Node> children = sentinelNode.getChildren();
         if (children.isEmpty()) {
@@ -137,6 +182,13 @@ public class BPlusTree {
         return children.get(0);
     }
 
+    /**
+     * The function to recursively delete the node by numVotes
+     *
+     * @param node     The node of consideration recursively
+     * @param numVotes The target numVotes to delete
+     * @return Whether one of the children has been deleted
+     */
     private boolean recursiveDeleteNode(Node node, int numVotes) throws LeafFullException {
         // Returning true = one of the children have been deleted (# of child changed)
         if (node instanceof LeafNode leafNode) {
@@ -243,6 +295,14 @@ public class BPlusTree {
         }
     }
 
+    /**
+     * The function to recursively insert the new record into the BPlus Tree
+     *
+     * @param node       The node of consideration recursively
+     * @param newAddress The address of the record that is to be inserted
+     * @param key        The key of the record that we want to insert
+     * @return Null if there is no need to change the node, else return the new node created in the process of insertion
+     */
     private Node recursiveInsertNode(Node node, Address newAddress, int key) throws LeafFullException {
         // Returns null if there is no need to change the node
         Context.increment();
@@ -350,6 +410,13 @@ public class BPlusTree {
         return null;
     }
 
+
+    /**
+     * The function to insert the record using its address
+     *
+     * @param newAddress The address of the new record
+     * @param key        The key of the record to be inserted
+     */
     public void insertAddress(Address newAddress, int key) throws LeafFullException {
         Node root = getRoot();
 
@@ -398,6 +465,11 @@ public class BPlusTree {
         }
     }
 
+    /**
+     * The function to delete by numVotes
+     *
+     * @param numVotes The numVotes of the records to be deleted
+     */
     public void deleteRecord(int numVotes) throws Exception {
         Node root = getRoot();
 
@@ -417,15 +489,29 @@ public class BPlusTree {
         }
     }
 
+    /**
+     * The function to get the maximum number of key
+     *
+     * @return
+     */
     public int getMaxKeyNumber() {
-        return maxKeyNumber; // it's better to have calculations here instead?
+        return maxKeyNumber;
     }
 
+    /**
+     * The function to display the content of the root
+     */
     public void printRootKeys() {
         InternalNode root = (InternalNode) getRoot();
         System.out.println("Root Node Keys: " + root.getKeys());
     }
 
+
+    /**
+     * The function to calculate the number of levels of BPlus Tree
+     *
+     * @return The number of levels that BPlus Tree has
+     */
     public int calculateNumLevels() {
         Node root = getRoot();
         int height = 0;
@@ -450,6 +536,11 @@ public class BPlusTree {
         return height;
     }
 
+    /**
+     * The function to calculate the number of nodes inside BPlus Tree
+     *
+     * @return The number of nodes inside BPlus Tree
+     */
     public int calculateNodes() {
         Node root = getRoot();
         int cnt = 0;

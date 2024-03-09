@@ -1,7 +1,6 @@
 package org.grp1.constant;
 
 public class Config {
-
     public static final int MB = 1 << 20;
     public static final int DISK_SIZE = 100 * MB;
     public static final int BLOCK_SIZE = 200;
@@ -11,5 +10,5 @@ public class Config {
     public static final int POINTER_SIZE = 8;
     public static final int KEY_SIZE = 4;
     public static final int N = (BLOCK_SIZE - POINTER_SIZE) / (KEY_SIZE + POINTER_SIZE);
-    public static final int TREE_NODE_SIZE = 13;
+
 }
