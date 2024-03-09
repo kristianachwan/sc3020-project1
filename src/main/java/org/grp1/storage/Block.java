@@ -1,14 +1,14 @@
 package org.grp1.storage;
 
-import org.grp1.model.Record;
 import org.grp1.constant.ErrorMessage;
 import org.grp1.exception.BlockFullException;
 import org.grp1.exception.InvalidIndexException;
+import org.grp1.model.Record;
 
 public class Block {
 
+    private final Record[] records;
     private int numOfRecord;
-    private Record[] records;
 
     public Block(int size) {
         this.numOfRecord = 0;
@@ -30,7 +30,7 @@ public class Block {
     public Record getRecord(int index) throws InvalidIndexException {
         if (isInvalidIndex(index))
             throw new InvalidIndexException(ErrorMessage.INVALID_INDEX_MSG);
-        
+
         return records[index];
     }
 
@@ -53,8 +53,8 @@ public class Block {
 
         records[index] = null;
 
-        for (int i = index+1; i < records.length; i++) {
-            records[i-1] = records[i];
+        for (int i = index + 1; i < records.length; i++) {
+            records[i - 1] = records[i];
         }
 
         this.numOfRecord -= 1;
@@ -62,7 +62,7 @@ public class Block {
     }
 
     protected boolean isInvalidIndex(int index) {
-        return index < 0 && index < records.length;
+        return index < 0 || index >= records.length;
     }
 
 }
