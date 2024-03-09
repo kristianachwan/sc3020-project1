@@ -1,5 +1,6 @@
 package org.grp1.storage;
 
+import org.grp1.constant.Config;
 import org.grp1.constant.ErrorMessage;
 import org.grp1.exception.BlockFullException;
 import org.grp1.exception.DiskFullException;
@@ -31,7 +32,7 @@ public class Disk {
     public void insertRecord(Record r) throws DiskFullException {
 
         // get block index to insert record
-        int blockIndex = numOfRecord / getMaxNumberOfRecordsInBlock();
+        int blockIndex = numOfRecord / Config.NUMBER_OF_RECORDS_IN_BLOCK;
 
         if (blockIndex < 0 || blockIndex >= getNumberOfBlocks())
             throw new DiskFullException(ErrorMessage.DISK_FULL_MSG);
@@ -39,7 +40,7 @@ public class Disk {
         try {
 
             if (blocks[blockIndex] == null)
-                blocks[blockIndex] = new Block(getMaxNumberOfRecordsInBlock());
+                blocks[blockIndex] = new Block(Config.NUMBER_OF_RECORDS_IN_BLOCK);
 
             blocks[blockIndex].insertRecord(r);
 
@@ -127,7 +128,7 @@ public class Disk {
         //System.out.println("Free Space: " + (this.diskSize - (this.numOfRecord*recordSize)));
         System.out.println("Number of records: " + this.getNumberOfRecords());
         System.out.println("Size of a record: " + recordSize);
-        System.out.println("Number of records in a block: " + this.getMaxNumberOfRecordsInBlock());
+        System.out.println("Number of records in a block: " + Config.NUMBER_OF_RECORDS_IN_BLOCK);
         System.out.println("Number of occupied blocks: " + this.getOccupiedBlock());
     }
 

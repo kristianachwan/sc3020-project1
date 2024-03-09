@@ -24,7 +24,7 @@ public class Main {
     public static void main(String[] args) {
         System.out.println("Setting up the disk...");
         disk = new Disk(Config.DISK_SIZE, Config.BLOCK_SIZE, Config.RECORD_SIZE);
-        index = new BPlusTree(Config.TREE_NODE_SIZE, disk);
+        index = new BPlusTree(Config.N, disk);
         context = new Context();
         runExperiment1();
         runExperiment2();
