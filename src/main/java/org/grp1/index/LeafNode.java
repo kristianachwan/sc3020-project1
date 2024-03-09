@@ -155,4 +155,12 @@ public class LeafNode extends Node {
 
         return right;
     }
+
+    public int getMaxNumOfKeys() {
+        return this.maxNumOfKeys;
+    }
+
+    public int getMinNumOfKeys() {
+        return this.maxNumOfKeys / 2;
+    }
 }
