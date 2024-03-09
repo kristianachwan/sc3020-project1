@@ -22,7 +22,8 @@ public class LeafNode extends Node {
         this.records = new ArrayList<Record>();
     }
 
-    public LeafNode(LeafNode previous, LeafNode next, InternalNode parent, ArrayList<Integer> keys, ArrayList<Record> records, int maxNumOfKeys) {
+    public LeafNode(LeafNode previous, LeafNode next, InternalNode parent, ArrayList<Integer> keys,
+                    ArrayList<Record> records, int maxNumOfKeys) {
         this.previous = previous;
         this.next = next;
         this.parent = parent;
@@ -52,7 +53,11 @@ public class LeafNode extends Node {
         this.records = records;
     }
 
-    public void insertRecord(Record newRecord) throws LeafFullException {
+
+    public void insert(NodeChild newChild) {
+        if (!(newChild instanceof Record newRecord)) {
+            throw new Error("Inserted a non-record child");
+        }
         if (isFull()) {
             throw new LeafFullException("Inserted a record in a full node");
         }
@@ -63,8 +68,12 @@ public class LeafNode extends Node {
         records.add(newIndex, newRecord);
     }
 
-    public ArrayList<Integer> getKeys() {
-        return keys;
+    public int getKey() {
+        return this.keys.get(0);
+    }
+
+    public int getKeyByIndex(int index) {
+        return this.keys.get(index);
     }
 
     public int getRecordIndex(int key) {
@@ -88,6 +97,15 @@ public class LeafNode extends Node {
         return keys.size();
     }
 
+    public void delete(int index) {
+        if (index < 0 || index >= records.size()) {
+            throw (new Error("Index out of bounds"));
+        }
+
+        keys.remove(index);
+        records.remove(index);
+    }
+
     public Record getRecord(int key) {
         int recordIndex = getRecordIndex(key);
         if (recordIndex == -1) {
@@ -98,6 +116,10 @@ public class LeafNode extends Node {
     }
 
     public Record getRecordByIndex(int index) {
+        return records.get(index);
+    }
+
+    public NodeChild getChildAsNodeChild(int index) {
         return records.get(index);
     }
 

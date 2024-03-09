@@ -27,9 +27,18 @@ public class InternalNode extends Node {
     }
 
     public ArrayList<Node> getChildren() {
+        // Intentionally return the children object instead of cloning it to edit the sentinel node
         return this.children;
     }
 
+    public void delete(int index) {
+        if (index < 0 || index + 1 > this.children.size()) {
+            throw new Error("Deleting invalid index");
+        }
+        // It will delete i-1-th and i-th key and record respectively
+        keys.remove(index == 0 ? 0 : index - 1);
+        children.remove(index);
+    }
 
     public void setParent(InternalNode parent) {
         this.parent = parent;
@@ -40,12 +49,24 @@ public class InternalNode extends Node {
         this.children = children;
     }
 
-    public Node getChildByIndex(int index) {
-        return this.children.get(index);
+    public int getKey() {
+        return this.keys.get(0);
+    }
+
+    public int getKeyByIndex(int index) {
+        return this.keys.get(index);
     }
 
     public Node getChild(int key) {
         return this.children.get(getChildIndex(key));
+    }
+
+    public Node getChildByIndex(int index) {
+        return this.children.get(index);
+    }
+
+    public NodeChild getChildAsNodeChild(int index) {
+        return this.children.get(index);
     }
 
     public int getChildIndex(int key) {
@@ -61,10 +82,16 @@ public class InternalNode extends Node {
         return children.size() - 1;
     }
 
-    public void insertNode(Node newNode, int key) {
+
+    public void insert(NodeChild newChild) {
+        if (!(newChild instanceof Node newNode)) {
+            throw new Error("Inserted a non-Node child");
+        }
         if (isFull()) {
             throw new Error("Inserted a record in a full node");
         }
+
+        int key = newNode.getKey();
 
         int newIndex = getChildIndex(key);
 

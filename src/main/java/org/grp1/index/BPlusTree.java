@@ -12,6 +12,7 @@ public class BPlusTree {
     private final int maxKeyNumber;
     private final InternalNode sentinelNode;
 
+
     public BPlusTree(int maxKeyNumber) {
         this.maxKeyNumber = maxKeyNumber;
         this.sentinelNode = new InternalNode(new ArrayList<>(), new ArrayList<>(), this.maxKeyNumber);
@@ -115,22 +116,139 @@ public class BPlusTree {
         return children.get(0);
     }
 
-    private Node recursiveInsertNode(Node node, Record newRecord) throws LeafFullException {
+    private boolean recursiveDeleteNode(Node node, int numVotes) {
+        // Returning true = accessed node has been modified/keys deleted
+        /*
+         * Main idea:
+         * - Recursively find the correct node that contains the record to be deleted
+         * - If the node is a leaf node, delete the record
+         *
+         * - If it is an internal node:
+         * - Find the correct child node that contains the record to be deleted
+         * - Call the function
+         * - Check the size of the child node:
+         * - min_size = maxKeyNumber // 2 for internal nodes, (maxKeyNumber + 1) // 2
+         * for leaf nodes
+         * - Borrow a pointer from left or right sibling (if size > min_size)
+         * - If not possible, attempt to merge with left sibling/right sibling:
+         */
+        if (node instanceof LeafNode leafNode) {
+
+            int idx = leafNode.getRecordIndex(numVotes);
+
+            if (idx == -1) return false;
+
+            leafNode.delete(idx);
+
+            return true;
+        } else {
+            InternalNode internalNode = (InternalNode) node;
+            int index = internalNode.getChildIndex(numVotes);
+            Node childNode = internalNode.getChildByIndex(index);
+
+            int minimumNoOfChild = childNode instanceof LeafNode ? maxKeyNumber / 2 : (maxKeyNumber + 1) / 2;
+
+            if (!recursiveDeleteNode(childNode, numVotes)) {
+                return false;
+            }
+
+            // Checks if the recursive-ed child is above the legal minimum amount of children
+            if (childNode.size() >= minimumNoOfChild) {
+                return false;
+            }
+
+            // Borrows from the left sibling node;
+            Node siblingChild = null;
+            boolean isLeftSibling = true;
+
+            if (index > 0 && (
+                    internalNode.getChildByIndex(index - 1).size() > maxKeyNumber / 2 + 1 ||
+                            internalNode.getChildByIndex(index - 1) instanceof InternalNode && internalNode.getChildByIndex(index - 1).size() > maxKeyNumber / 2
+            )) {
+                // Single node access here
+                siblingChild = internalNode.getChildByIndex(index - 1);
+            } else if (index < internalNode.size() - 1 && (
+                    internalNode.getChildByIndex(index + 1).size() > maxKeyNumber / 2 + 1 ||
+                            internalNode.getChildByIndex(index + 1) instanceof InternalNode && internalNode.getChildByIndex(index - 1).size() > maxKeyNumber / 2
+            )) {
+                // Double node access here
+                siblingChild = internalNode.getChildByIndex(index + 1);
+                isLeftSibling = false;
+            }
+
+            if (siblingChild != null) {
+                int indexToBeDeleted = (isLeftSibling ? siblingChild.size() - 1 : 0);
+
+                NodeChild child = siblingChild.getChildAsNodeChild(indexToBeDeleted + (siblingChild instanceof LeafNode ? 0 : 1));
+
+                siblingChild.delete(indexToBeDeleted);
+
+                // Adding to the current node
+                childNode.insert(child);
+
+                return false;
+            }
+
+            // If neither nodes can borrow, then it should be able to merge with either left node or right node
+            // This child node will be deleted
+            // but do also check if it is the first or the last index
+            // No change in number of nodes accessed (already two)
+
+            if (index > 0) {
+                siblingChild = internalNode.getChildByIndex(index - 1);
+            } else if (index < internalNode.size()) {
+                siblingChild = internalNode.getChildByIndex(index + 1);
+            }
+
+            if (siblingChild != null) {
+                if (childNode instanceof LeafNode childLeafNode) {
+
+                    for (int i = 0; i < index; i++) {
+                        siblingChild.insert(childLeafNode.getRecord(i));
+                    }
+
+                    for (int i = index + 1; i < childLeafNode.size(); i++) {
+                        siblingChild.insert(childLeafNode.getRecord((i)));
+                    }
+                } else {
+                    InternalNode childInternalNode = (InternalNode) childNode;
+
+                    for (int i = 0; i < index; i++) {
+                        siblingChild.insert(childInternalNode.getChild(i));
+                    }
+
+                    for (int i = index + 1; i <= childInternalNode.size(); i++) {
+                        siblingChild.insert(childInternalNode.getChild((i)));
+                    }
+                }
+
+                internalNode.delete(index);
+
+                return true;
+            } else {
+                throw new Error("No sibling is found ?");
+            }
+        }
+    }
+
+    private Node recursiveInsertNode(Node node, Record newRecord) {
         // Returns null if there is no need to change the node
 
         if (node instanceof LeafNode leafNode) {
             // It is the leafNode a.k.a. the base case
             if (leafNode.isFull()) {
 
-
                 int idx = leafNode.getRecordIndexLowerBound(newRecord.getNumVotes());
 
                 // n + 1
                 // if split at (n+2)//2 => n//2 + 1
-                ArrayList<Record> newRecordList = leafNode.splitRecordList((leafNode.size() + 2) / 2 + (idx <= leafNode.size() / 2 ? -1 : 0));
-                ArrayList<Integer> newKeyList = leafNode.splitKeyList((leafNode.size() + 2) / 2 + (idx <= leafNode.size() / 2 ? -1 : 0));
+                ArrayList<Record> newRecordList = leafNode
+                        .splitRecordList((leafNode.size() + 2) / 2 + (idx <= leafNode.size() / 2 ? -1 : 0));
+                ArrayList<Integer> newKeyList = leafNode
+                        .splitKeyList((leafNode.size() + 2) / 2 + (idx <= leafNode.size() / 2 ? -1 : 0));
 
-                LeafNode newLeafNode = new LeafNode(leafNode, leafNode.getNext(), null, newKeyList, newRecordList, this.maxKeyNumber);
+                LeafNode newLeafNode = new LeafNode(leafNode, leafNode.getNext(), null, newKeyList, newRecordList,
+                        this.maxKeyNumber);
 
                 // Modify the old leafnode
                 if (leafNode.getNext() != null) {
@@ -139,15 +257,15 @@ public class BPlusTree {
                 leafNode.setNext(newLeafNode);
 
                 if (idx <= leafNode.size() / 2) {
-                    leafNode.insertRecord(newRecord);
+                    leafNode.insert(newRecord);
                 } else {
-                    newLeafNode.insertRecord(newRecord);
+                    newLeafNode.insert(newRecord);
                 }
 
                 return newLeafNode;
             } else {
                 // Find correct index and returns null
-                leafNode.insertRecord(newRecord);
+                leafNode.insert(newRecord);
             }
         } else {
             // recursive case
@@ -161,28 +279,29 @@ public class BPlusTree {
             if (childIndex > 0) internalNode.updateKey(childIndex);
 
             if (newNode != null) {
-                int newNodeKey = getNodeFirstKey(newNode);
                 if (internalNode.isFull()) {
 
                     ArrayList<Node> newNodeList;
                     ArrayList<Integer> newKeyList;
                     InternalNode newSiblingInternalNode;
 
-                    newNodeList = internalNode.splitChildrenList((internalNode.size() + 2) / 2 + (childIndex + 1 <= (internalNode.size() + 2) / 2 ? -1 : 0));
-                    newKeyList = internalNode.splitKeyList((internalNode.size() + 2) / 2 - 1 + (childIndex + 1 <= (internalNode.size() + 2) / 2 ? -1 : 0));
+                    newNodeList = internalNode.splitChildrenList(
+                            (internalNode.size() + 2) / 2 + (childIndex + 1 <= (internalNode.size() + 2) / 2 ? -1 : 0));
+                    newKeyList = internalNode.splitKeyList((internalNode.size() + 2) / 2 - 1
+                            + (childIndex + 1 <= (internalNode.size() + 2) / 2 ? -1 : 0));
 
                     newKeyList.remove(0);
 
                     newSiblingInternalNode = new InternalNode(newKeyList, newNodeList, this.maxKeyNumber);
 
                     if (childIndex + 1 <= (internalNode.size() + 2) / 2) {
-                        internalNode.insertNode(newNode, newNodeKey);
+                        internalNode.insert(newNode);
                     } else {
-                        newSiblingInternalNode.insertNode(newNode, newNodeKey);
+                        newSiblingInternalNode.insert(newNode);
                     }
                     return newSiblingInternalNode;
                 } else {
-                    internalNode.insertNode(newNode, newNodeKey);
+                    internalNode.insert(newNode);
                 }
 
                 if (newNode instanceof LeafNode) {
@@ -200,17 +319,14 @@ public class BPlusTree {
     public void insertRecord(Record newRecord) throws LeafFullException {
         Node root = getRoot();
 
-
         if (root == null) {
             // Creates a leaf node
             LeafNode newNode = new LeafNode(null, null, sentinelNode, this.maxKeyNumber);
             ArrayList<Integer> sentinelKeyList = new ArrayList<Integer>();
             ArrayList<Node> sentinelNodeList = new ArrayList<Node>();
 
-
             sentinelKeyList.add(0);
             sentinelNodeList.add(newNode);
-
 
             sentinelNode.setChildren(sentinelKeyList, sentinelNodeList);
 
@@ -246,8 +362,25 @@ public class BPlusTree {
 
             this.sentinelNode.setChildren(sentinelKeyList, sentinelNodeList);
         }
+    }
 
+    public void deleteRecord(int numVotes) {
+        Node root = getRoot();
 
+        if (root == null) {
+            throw new Error("Deleting on an empty is not allowed");
+        }
+
+        boolean isRootChanged = recursiveDeleteNode(root, numVotes);
+
+        if (isRootChanged && root.size() == 0) {
+            if (root instanceof InternalNode internalRoot) {
+                Node newRoot = internalRoot.getChildByIndex(0);
+
+                this.sentinelNode.getChildren().remove(0);
+                this.sentinelNode.getChildren().add(newRoot);
+            }
+        }
     }
 
 }
