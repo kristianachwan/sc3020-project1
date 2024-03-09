@@ -4,42 +4,39 @@ import java.util.concurrent.TimeUnit;
 
 public class Context {
 
-    private long startTime;
-    private long endTime;
-    private int count;
+    private static long startTime = 0;
+    private static long endTime = 0;
+    private static int count = 0;
 
-    public Context() {
-        this.count = 0;
+
+    public static void increment() {
+        count++;
     }
 
-    public void increment() {
-        this.count++;
-    }
-
-    private void add(int addend) {
+    private static void add(int addend) {
         count += addend;
     }
 
-    public int getCount() {
+    public static int getCount() {
         return count;
     }
 
-    public void startTimer() {
+    public static void startTimer() {
         startTime = System.nanoTime();
     }
 
-    public void endTimer() {
+    public static void endTimer() {
         endTime = System.nanoTime();
     }
 
-    public long getElapsedTime(TimeUnit unit) {
+    public static long getElapsedTime(TimeUnit unit) {
         return unit.convert((endTime - startTime), TimeUnit.NANOSECONDS);
     }
 
-    public void reset() {
-        this.startTime = 0;
-        this.endTime = 0;
-        this.count = 0;
+    public static void reset() {
+        startTime = 0;
+        endTime = 0;
+        count = 0;
     }
 
 }

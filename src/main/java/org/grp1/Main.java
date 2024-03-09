@@ -19,13 +19,11 @@ public class Main {
 
     private static Disk disk;
     private static BPlusTree index;
-    private static Context context;
 
     public static void main(String[] args) {
         System.out.println("Setting up the disk...");
         disk = new Disk(Config.DISK_SIZE, Config.BLOCK_SIZE, Config.RECORD_SIZE);
         index = new BPlusTree(Config.N, disk);
-        context = new Context();
         runExperiment1();
         runExperiment2();
         runExperiment3();
@@ -34,6 +32,7 @@ public class Main {
     }
 
     public static void runExperiment1() {
+        Context.reset();
         System.out.println("----------Running experiment 1----------");
         try {
             List<String> listOfRecordStr = TSVReader.ReadTSVFile(Config.DATA_FILE_PATH);
@@ -49,6 +48,7 @@ public class Main {
     }
 
     public static void runExperiment2() {
+        Context.reset();
         System.out.println("----------Running experiment 2----------");
         try {
             for (int i = 0; i < disk.getOccupiedBlock(); i++) {
@@ -79,6 +79,7 @@ public class Main {
 
 
     public static void runExperiment3() {
+        Context.reset();
         System.out.println("----------Running experiment 3----------");
         // calculate time for linear search
         long startTimeLinear = System.nanoTime();
@@ -111,17 +112,17 @@ public class Main {
     }
 
     public static void runExperiment4() {
+        Context.reset();
         System.out.println("----------Running experiment 4----------");
-
-        context.startTimer();
+        Context.startTimer();
         List<Record> recordsDisk = disk.getRecordsByNumVotes(30000, 50000);
-        context.endTimer();
-        double linearSearchTime = (double) context.getElapsedTime(TimeUnit.NANOSECONDS) / 1000;
+        Context.endTimer();
+        double linearSearchTime = (double) Context.getElapsedTime(TimeUnit.NANOSECONDS) / 1000;
 
-        context.startTimer();
+        Context.startTimer();
         List<Record> recordsIndex = index.getRecordsByNumVotes(30000, 50000);
-        context.endTimer();
-        double indexSearchTime = (double) context.getElapsedTime(TimeUnit.NANOSECONDS) / 1000;
+        Context.endTimer();
+        double indexSearchTime = (double) Context.getElapsedTime(TimeUnit.NANOSECONDS) / 1000;
 
         double rating = 0;
         for (Record r : recordsIndex) {
@@ -143,25 +144,25 @@ public class Main {
     public static void runExperiment5() {
         System.out.println("----------Running experiment 5----------");
         index.resetAccessCount();
-
+        Context.reset();
         try {
-            context.startTimer();
+            Context.startTimer();
             index.deleteRecord(1000);
-            context.endTimer();
+            Context.endTimer();
         } catch (Exception e) {
             System.out.println(e.getMessage());
         }
 
-        double indexDeleteTime = (double) context.getElapsedTime(TimeUnit.NANOSECONDS) / 1000;
+        double indexDeleteTime = (double) Context.getElapsedTime(TimeUnit.NANOSECONDS) / 1000;
 
         try {
-            context.startTimer();
+            Context.startTimer();
             disk.deleteRecordsByNumVotes(1000);
-            context.endTimer();
+            Context.endTimer();
         } catch (Exception e) {
             e.printStackTrace();
         }
-        double linearDeleteTime = (double) context.getElapsedTime(TimeUnit.NANOSECONDS) / 1000;
+        double linearDeleteTime = (double) Context.getElapsedTime(TimeUnit.NANOSECONDS) / 1000;
         // System.out.println(index.getRecordsByNumVotes(1000).size());
 
         // System.out.println("Index Node Update Count: " + BPlusTree.numNodes);
