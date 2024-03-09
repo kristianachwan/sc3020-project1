@@ -1,15 +1,16 @@
 package org.grp1.index;
 
+import org.grp1.exception.LeafFullException;
+import org.grp1.model.Address;
+import org.grp1.model.Bucket;
+
 import java.util.ArrayList;
 import java.util.List;
-
-import org.grp1.exception.LeafFullException;
-import org.grp1.model.Record;
 
 public class LeafNode extends Node {
     private final int maxNumOfKeys;
     private List<Integer> keys;
-    private List<Record> records;
+    private List<Bucket> buckets;
     private InternalNode parent;
     private LeafNode previous;
     private LeafNode next;
@@ -20,16 +21,16 @@ public class LeafNode extends Node {
         this.parent = parent;
         this.maxNumOfKeys = maxNumOfKeys;
         this.keys = new ArrayList<Integer>();
-        this.records = new ArrayList<Record>();
+        this.buckets = new ArrayList<Bucket>();
     }
 
     public LeafNode(LeafNode previous, LeafNode next, InternalNode parent, List<Integer> keys,
-    List<Record> records, int maxNumOfKeys) {
+                    List<Bucket> buckets, int maxNumOfKeys) {
         this.previous = previous;
         this.next = next;
         this.parent = parent;
         this.keys = keys;
-        this.records = records;
+        this.buckets = buckets;
         this.maxNumOfKeys = maxNumOfKeys;
     }
 
@@ -49,24 +50,41 @@ public class LeafNode extends Node {
         this.parent = parent;
     }
 
-    public void setRecords(ArrayList<Integer> keys, ArrayList<Record> records) {
+    public void setRecords(ArrayList<Integer> keys, ArrayList<Bucket> buckets) {
         this.keys = keys;
-        this.records = records;
+        this.buckets = buckets;
     }
 
+    public void insertAddress(Address newAddress, int key) {
+        int idx = this.getRecordIndex(key);
+
+        if (idx == -1) {
+            // creates a new bucket
+            Bucket newBucket = new Bucket(key);
+            try {
+                insert(newBucket);
+            } catch (LeafFullException e) {
+                throw new Error("Leaf is full");
+            }
+
+        } else {
+            Bucket bucket = this.getBucketByIndex(idx);
+            bucket.insertAddress(newAddress);
+        }
+    }
 
     public void insert(NodeChild newChild) throws LeafFullException {
-        if (!(newChild instanceof Record newRecord)) {
-            throw new Error("Inserted a non-record child");
+        if (!(newChild instanceof Bucket newBucket)) {
+            throw new Error("Inserted a non-address child");
         }
         if (isFull()) {
             throw new LeafFullException("Inserted a record in a full node");
         }
 
-        int newIndex = getRecordIndexLowerBound(newRecord.getNumVotes());
+        int newIndex = getRecordIndexLowerBound(newBucket.getKey());
 
-        keys.add(newIndex, newRecord.getNumVotes());
-        records.add(newIndex, newRecord);
+        keys.add(newIndex, newBucket.getKey());
+        buckets.add(newIndex, newBucket);
     }
 
     public int getKey() {
@@ -78,7 +96,7 @@ public class LeafNode extends Node {
     }
 
     public int getRecordIndex(int key) {
-        for (int i = 0; i < records.size(); i++) {
+        for (int i = 0; i < buckets.size(); i++) {
             if (key == keys.get(i)) {
                 return i;
             }
@@ -103,29 +121,29 @@ public class LeafNode extends Node {
     }
 
     public void delete(int index) {
-        if (index < 0 || index >= records.size()) {
+        if (index < 0 || index >= buckets.size()) {
             throw (new Error("Index out of bounds"));
         }
 
         keys.remove(index);
-        records.remove(index);
+        buckets.remove(index);
     }
 
-    public Record getRecord(int key) {
+    public Bucket getBucket(int key) {
         int recordIndex = getRecordIndex(key);
         if (recordIndex == -1) {
             return null;
         }
 
-        return records.get(recordIndex);
+        return buckets.get(recordIndex);
     }
 
-    public Record getRecordByIndex(int index) {
-        return records.get(index);
+    public Bucket getBucketByIndex(int index) {
+        return buckets.get(index);
     }
 
     public NodeChild getChildAsNodeChild(int index) {
-        return records.get(index);
+        return buckets.get(index);
     }
 
     public LeafNode getNext() {
@@ -136,12 +154,12 @@ public class LeafNode extends Node {
         this.next = next;
     }
 
-    public List<Record> splitRecordList(int x) {
+    public List<Bucket> splitBucketList(int x) {
         // [0..x) and returns [x..n)
-        List<Record> left = new ArrayList<Record>(records.subList(0, x));
-        List<Record> right = new ArrayList<Record>(records.subList(x, records.size()));
+        List<Bucket> left = new ArrayList<>(buckets.subList(0, x));
+        List<Bucket> right = new ArrayList<>(buckets.subList(x, buckets.size()));
 
-        records = left;
+        buckets = left;
 
         return right;
     }

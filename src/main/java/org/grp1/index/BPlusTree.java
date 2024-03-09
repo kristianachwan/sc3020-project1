@@ -1,7 +1,10 @@
 package org.grp1.index;
 
 import org.grp1.exception.LeafFullException;
+import org.grp1.model.Address;
+import org.grp1.model.Bucket;
 import org.grp1.model.Record;
+import org.grp1.storage.Disk;
 
 import java.util.ArrayList;
 import java.util.LinkedList;
@@ -15,12 +18,14 @@ public class BPlusTree {
     public static int numNodes = 0;
     public static int numLevels = 0;
     private final int maxKeyNumber;
+    private final Disk disk;
     private final InternalNode sentinelNode;
 
 
-    public BPlusTree(int maxKeyNumber) {
+    public BPlusTree(int maxKeyNumber, Disk disk) {
         this.maxKeyNumber = maxKeyNumber;
         this.sentinelNode = new InternalNode(new ArrayList<>(), new ArrayList<>(), this.maxKeyNumber);
+        this.disk = disk;
     }
 
     private void resetAccessCount() {
@@ -36,21 +41,6 @@ public class BPlusTree {
         } else {
             return ((InternalNode) node).getKeys().get(0);
         }
-    }
-
-    public Record getRecordByNumVotes(int numVotes) {
-        Node node = getRoot();
-        if (node == null) {
-            return null;
-        }
-
-
-        while (!(node instanceof LeafNode)) {
-            InternalNode internalNode = (InternalNode) node;
-            node = internalNode.getChild(numVotes);
-        }
-
-        return ((LeafNode) node).getRecord(numVotes);
     }
 
     public List<Record> getRecordsByNumVotes(int numVotes) {
@@ -70,7 +60,9 @@ public class BPlusTree {
             List<Integer> keys = leafNode.getKeys();
             for (int i = 0; i < keys.size(); i++) {
                 if (numVotes == keys.get(i)) {
-                    records.add(leafNode.getRecordByIndex(i));
+                    leafNode.getBucketByIndex(i).getAddresses().forEach(addr ->
+                            records.add(this.disk.getRecordByPointer(addr))
+                    );
                 } else if (numVotes < keys.get(i)) {
                     finished = true;
                     break;
@@ -95,14 +87,14 @@ public class BPlusTree {
             node = internalNode.getChild(lowerNumVotes);
         }
 
-        List<Record> records = new ArrayList<>();
+        List<Bucket> buckets = new ArrayList<>();
         boolean finished = false;
         while (leafNode != null && !finished) {
             dataBlockAccess++;
             List<Integer> keys = leafNode.getKeys();
             for (int i = 0; i < keys.size(); i++) {
                 if (keys.get(i) >= lowerNumVotes && keys.get(i) <= higherNumVotes) {
-                    records.add(leafNode.getRecordByIndex(i));
+                    buckets.add(leafNode.getBucketByIndex(i));
                 } else if (higherNumVotes < keys.get(i)) {
                     finished = true;
                     break;
@@ -111,7 +103,15 @@ public class BPlusTree {
             leafNode = leafNode.getNext();
         }
 
-        return records;
+        List<Record> recordsResult = new ArrayList<>();
+
+        buckets.forEach(bucket ->
+                bucket.getAddresses().forEach(addr ->
+                        recordsResult.add(this.disk.getRecordByPointer(addr))
+                )
+        );
+
+        return recordsResult;
     }
 
     public Node getRoot() {
@@ -211,11 +211,11 @@ public class BPlusTree {
                 if (childNode instanceof LeafNode childLeafNode) {
 
                     for (int i = 0; i < index; i++) {
-                        siblingChild.insert(childLeafNode.getRecord(i));
+                        siblingChild.insert(childLeafNode.getBucket(i));
                     }
 
                     for (int i = index + 1; i < childLeafNode.size(); i++) {
-                        siblingChild.insert(childLeafNode.getRecord((i)));
+                        siblingChild.insert(childLeafNode.getBucket((i)));
                     }
                 } else {
                     InternalNode childInternalNode = (InternalNode) childNode;
@@ -238,19 +238,19 @@ public class BPlusTree {
         }
     }
 
-    private Node recursiveInsertNode(Node node, Record newRecord) throws LeafFullException {
+    private Node recursiveInsertNode(Node node, Address newAddress, int key) throws LeafFullException {
         // Returns null if there is no need to change the node
 
         if (node instanceof LeafNode leafNode) {
             // It is the leafNode a.k.a. the base case
             if (leafNode.isFull()) {
 
-                int idx = leafNode.getRecordIndexLowerBound(newRecord.getNumVotes());
+                int idx = leafNode.getRecordIndexLowerBound(key);
 
                 // n + 1
                 // if split at (n+2)//2 => n//2 + 1
-                List<Record> newRecordList = leafNode
-                        .splitRecordList((leafNode.size() + 2) / 2 + (idx <= leafNode.size() / 2 ? -1 : 0));
+                List<Bucket> newRecordList = leafNode
+                        .splitBucketList((leafNode.size() + 2) / 2 + (idx <= leafNode.size() / 2 ? -1 : 0));
                 List<Integer> newKeyList = leafNode
                         .splitKeyList((leafNode.size() + 2) / 2 + (idx <= leafNode.size() / 2 ? -1 : 0));
 
@@ -265,24 +265,24 @@ public class BPlusTree {
                 leafNode.setNext(newLeafNode);
 
                 if (idx <= leafNode.size() / 2) {
-                    leafNode.insert(newRecord);
+                    leafNode.insertAddress(newAddress, key);
                 } else {
-                    newLeafNode.insert(newRecord);
+                    newLeafNode.insertAddress(newAddress, key);
                 }
 
                 return newLeafNode;
             } else {
                 // Find correct index and returns null
-                leafNode.insert(newRecord);
+                leafNode.insertAddress(newAddress, key);
             }
         } else {
             // recursive case
             InternalNode internalNode = (InternalNode) node;
 
-            int childIndex = internalNode.getChildIndex(newRecord.getNumVotes());
+            int childIndex = internalNode.getChildIndex(key);
             Node child = internalNode.getChildByIndex(childIndex);
 
-            Node newNode = recursiveInsertNode(child, newRecord);
+            Node newNode = recursiveInsertNode(child, newAddress, key);
             // Update child's key
             if (childIndex > 0) internalNode.updateKey(childIndex);
 
@@ -326,7 +326,7 @@ public class BPlusTree {
         return null;
     }
 
-    public void insertRecord(Record newRecord) throws LeafFullException {
+    public void insertAddress(Address newAddress, int key) throws LeafFullException {
         Node root = getRoot();
 
         if (root == null) {
@@ -344,7 +344,7 @@ public class BPlusTree {
             BPlusTree.numNodes++;
         }
 
-        Node newNode = recursiveInsertNode(root, newRecord);
+        Node newNode = recursiveInsertNode(root, newAddress, key);
 
         if (newNode != null) {
             // Root node is split into two
