@@ -1,5 +1,6 @@
 package org.grp1.util;
 
+import java.util.HashSet;
 import java.util.concurrent.TimeUnit;
 
 public class Context {
@@ -7,7 +8,15 @@ public class Context {
     private static long startTime = 0;
     private static long endTime = 0;
     private static int count = 0;
+    private static final HashSet<Integer> set = new HashSet<>();
 
+    public static void addSetInteger(int integer) {
+        set.add(integer);
+    }
+
+    public static int getSetCount() {
+        return set.size();
+    }
 
     public static void increment() {
         count++;
@@ -37,6 +46,7 @@ public class Context {
         startTime = 0;
         endTime = 0;
         count = 0;
+        set.clear();
     }
 
 }

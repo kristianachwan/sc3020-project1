@@ -14,8 +14,6 @@ import java.util.Queue;
 
 public class BPlusTree {
 
-    public static int indexNodeAccess = 0;
-    public static int dataBlockAccess = 0;
     private final int maxKeyNumber;
     private final Disk disk;
     private final InternalNode sentinelNode;
@@ -26,10 +24,6 @@ public class BPlusTree {
         this.disk = disk;
     }
 
-    public void resetAccessCount() {
-        indexNodeAccess = 0;
-        dataBlockAccess = 0;
-    }
 
     private int getNodeFirstKey(Node node) {
         if (node instanceof LeafNode) {
@@ -41,19 +35,22 @@ public class BPlusTree {
 
     public List<Record> getRecordsByNumVotes(int numVotes) {
         Node node = getRoot();
+        Context.increment();
         if (node == null) {
             return new ArrayList<>();
         }
+
         while (!(node instanceof LeafNode leafNode)) {
-            Context.increment();
+
             InternalNode internalNode = (InternalNode) node;
             node = internalNode.getChild(numVotes);
+            Context.increment();
         }
 
         List<Record> records = new ArrayList<>();
         boolean finished = false;
         while (leafNode != null && !finished) {
-            Context.increment();
+
             List<Integer> keys = leafNode.getKeys();
             for (int i = 0; i < keys.size(); i++) {
                 if (numVotes == keys.get(i)) {
@@ -66,28 +63,28 @@ public class BPlusTree {
                 }
             }
             leafNode = leafNode.getNext();
+            Context.increment();
         }
 
         return records;
     }
 
     public List<Record> getRecordsByNumVotes(int lowerNumVotes, int higherNumVotes) {
-        resetAccessCount();
         Node node = getRoot();
+        Context.increment();
         if (node == null) {
             return new ArrayList<>();
         }
 
         while (!(node instanceof LeafNode leafNode)) {
             InternalNode internalNode = (InternalNode) node;
-            indexNodeAccess++;
             node = internalNode.getChild(lowerNumVotes);
+            Context.increment();
         }
 
         List<Bucket> buckets = new ArrayList<>();
         boolean finished = false;
         while (leafNode != null && !finished) {
-            dataBlockAccess++;
             List<Integer> keys = leafNode.getKeys();
             for (int i = 0; i < keys.size(); i++) {
                 if (keys.get(i) >= lowerNumVotes && keys.get(i) <= higherNumVotes) {
@@ -98,6 +95,7 @@ public class BPlusTree {
                 }
             }
             leafNode = leafNode.getNext();
+            Context.increment();
         }
 
         List<Record> recordsResult = new ArrayList<>();
