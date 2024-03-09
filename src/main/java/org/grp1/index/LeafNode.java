@@ -1,12 +1,15 @@
-package org.grp1;
+package org.grp1.index;
 
 import java.util.ArrayList;
+import java.util.List;
 
+import org.grp1.exception.LeafFullException;
+import org.grp1.model.Record;
 
 public class LeafNode extends Node {
     private final int maxNumOfKeys;
-    private ArrayList<Integer> keys;
-    private ArrayList<Record> records;
+    private List<Integer> keys;
+    private List<Record> records;
     private InternalNode parent;
     private LeafNode previous;
     private LeafNode next;
@@ -20,7 +23,8 @@ public class LeafNode extends Node {
         this.records = new ArrayList<Record>();
     }
 
-    public LeafNode(LeafNode previous, LeafNode next, InternalNode parent, ArrayList<Integer> keys, ArrayList<Record> records, int maxNumOfKeys) {
+    public LeafNode(LeafNode previous, LeafNode next, InternalNode parent, List<Integer> keys,
+    List<Record> records, int maxNumOfKeys) {
         this.previous = previous;
         this.next = next;
         this.parent = parent;
@@ -28,7 +32,6 @@ public class LeafNode extends Node {
         this.records = records;
         this.maxNumOfKeys = maxNumOfKeys;
     }
-
 
     public boolean isFull() {
         return maxNumOfKeys == this.keys.size();
@@ -51,9 +54,13 @@ public class LeafNode extends Node {
         this.records = records;
     }
 
-    public void insertRecord(Record newRecord) {
+
+    public void insert(NodeChild newChild) throws LeafFullException {
+        if (!(newChild instanceof Record newRecord)) {
+            throw new Error("Inserted a non-record child");
+        }
         if (isFull()) {
-            throw new Error("Inserted a record in a full node");
+            throw new LeafFullException("Inserted a record in a full node");
         }
 
         int newIndex = getRecordIndexLowerBound(newRecord.getNumVotes());
@@ -62,8 +69,12 @@ public class LeafNode extends Node {
         records.add(newIndex, newRecord);
     }
 
-    public ArrayList<Integer> getKeys() {
-        return keys;
+    public int getKey() {
+        return this.keys.get(0);
+    }
+
+    public int getKeyByIndex(int index) {
+        return this.keys.get(index);
     }
 
     public int getRecordIndex(int key) {
@@ -87,6 +98,19 @@ public class LeafNode extends Node {
         return keys.size();
     }
 
+    public List<Integer> getKeys() {
+        return this.keys;
+    }
+
+    public void delete(int index) {
+        if (index < 0 || index >= records.size()) {
+            throw (new Error("Index out of bounds"));
+        }
+
+        keys.remove(index);
+        records.remove(index);
+    }
+
     public Record getRecord(int key) {
         int recordIndex = getRecordIndex(key);
         if (recordIndex == -1) {
@@ -100,6 +124,10 @@ public class LeafNode extends Node {
         return records.get(index);
     }
 
+    public NodeChild getChildAsNodeChild(int index) {
+        return records.get(index);
+    }
+
     public LeafNode getNext() {
         return next;
     }
@@ -108,20 +136,20 @@ public class LeafNode extends Node {
         this.next = next;
     }
 
-    public ArrayList<Record> splitRecordList(int x) {
+    public List<Record> splitRecordList(int x) {
         // [0..x) and returns [x..n)
-        ArrayList<Record> left = new ArrayList<Record>(records.subList(0, x));
-        ArrayList<Record> right = new ArrayList<Record>(records.subList(x, records.size()));
+        List<Record> left = new ArrayList<Record>(records.subList(0, x));
+        List<Record> right = new ArrayList<Record>(records.subList(x, records.size()));
 
         records = left;
 
         return right;
     }
 
-    public ArrayList<Integer> splitKeyList(int x) {
+    public List<Integer> splitKeyList(int x) {
         // [0..x) and returns [x..n)
-        ArrayList<Integer> left = new ArrayList<Integer>(keys.subList(0, x));
-        ArrayList<Integer> right = new ArrayList<Integer>(keys.subList(x, keys.size()));
+        List<Integer> left = new ArrayList<Integer>(keys.subList(0, x));
+        List<Integer> right = new ArrayList<Integer>(keys.subList(x, keys.size()));
 
         keys = left;
 

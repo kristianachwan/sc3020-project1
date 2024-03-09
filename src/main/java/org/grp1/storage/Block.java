@@ -30,7 +30,6 @@ public class Block {
     public Record getRecord(int index) throws InvalidIndexException {
         if (isInvalidIndex(index))
             throw new InvalidIndexException(ErrorMessage.INVALID_INDEX_MSG);
-        
         return records[index];
     }
 
@@ -53,8 +52,8 @@ public class Block {
 
         records[index] = null;
 
-        for (int i = index+1; i < records.length; i++) {
-            records[i-1] = records[i];
+        for (int i = index + 1; i < records.length; i++) {
+            records[i - 1] = records[i];
         }
 
         this.numOfRecord -= 1;
@@ -62,7 +61,7 @@ public class Block {
     }
 
     protected boolean isInvalidIndex(int index) {
-        return index < 0 && index < records.length;
+        return index < 0 || index >= records.length;
     }
 
 }
