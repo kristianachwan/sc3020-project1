@@ -67,6 +67,8 @@ public class LeafNode extends Node {
                 throw new Error("Leaf is full");
             }
 
+            newBucket.insertAddress(newAddress);
+
         } else {
             Bucket bucket = this.getBucketByIndex(idx);
             bucket.insertAddress(newAddress);
