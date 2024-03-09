@@ -251,18 +251,6 @@ public class BPlusTree {
             // It is the leafNode a.k.a. the base case
             if (leafNode.isFull() && leafNode.getRecordIndex(key) == -1) {
 
-                int idx = leafNode.getRecordIndexLowerBound(key);
-
-                // n + 1
-                // if split at (n+2)//2 => n//2 + 1
-//                List<Bucket> newRecordList = leafNode
-//                        .splitBucketList((maxKeyNumber + 2) / 2 + (idx <= (maxKeyNumber + 2) / 2 ? -1 : 0));
-//                List<Integer> newKeyList = leafNode
-//                        .splitKeyList((maxKeyNumber + 2) / 2 + (idx <= (maxKeyNumber + 2) / 2 ? -1 : 0));
-//
-//                LeafNode newLeafNode = new LeafNode(leafNode, leafNode.getNext(), null, newKeyList, newRecordList,
-//                        this.maxKeyNumber);
-
                 List<Bucket> newBuckets = leafNode.getBuckets();
                 List<Integer> keys = leafNode.getKeys();
                 Bucket newBucket = new Bucket(key);
@@ -290,7 +278,7 @@ public class BPlusTree {
 
                 LeafNode newLeafNode = new LeafNode(leafNode, leafNode.getNext(), null, keys.subList((maxKeyNumber + 1) / 2, maxKeyNumber + 1), newBuckets.subList((maxKeyNumber + 1) / 2, maxKeyNumber + 1), this.maxKeyNumber);
 
-                // Modify the old leafnode
+                // Modify the old leaf node
                 if (leafNode.getNext() != null) {
                     leafNode.getNext().setPrevious(newLeafNode);
                 }
@@ -315,29 +303,8 @@ public class BPlusTree {
             if (newNode != null) {
                 if (internalNode.isFull()) {
 
-//                    List<Node> newNodeList;
-//                    List<Integer> newKeyList;
-//                    InternalNode newSiblingInternalNode;
-
-//                    int internalNodeSize = internalNode.size();
-//
-//                    newNodeList = internalNode.splitChildrenList(
-//                            (maxKeyNumber + 2) / 2 + (childIndex + 1 <= (maxKeyNumber + 2) / 2 ? -1 : 0));
-//                    newKeyList = internalNode.splitKeyList((maxKeyNumber + 2) / 2 - 1
-//                            + (childIndex + 1 <= (maxKeyNumber + 2) / 2 ? -1 : 0));
-//
-//                    newKeyList.remove(0);
-//
-//                    newSiblingInternalNode = new InternalNode(newKeyList, newNodeList, this.maxKeyNumber);
-//
-//                    if (childIndex + 1 <= (maxKeyNumber + 2) / 2) {
-//                        internalNode.insert(newNode);
-//                    } else {
-//                        newSiblingInternalNode.insert(newNode);
-//                    }
-
-                    List<Node> newNodes = internalNode.getChildren();
-                    List<Integer> keys = internalNode.getKeys();
+                    List<Node> newNodes = internalNode.getChildren(); // maxKeyNumber + 1
+                    List<Integer> keys = internalNode.getKeys(); // maxKeyNumber
 
                     int newKey = newNode.getKey();
                     boolean inserted = false;
@@ -345,10 +312,11 @@ public class BPlusTree {
                     if (newNodes.get(0).getKey() > newKey) {
                         keys.add(0, newNodes.get(0).getKey());
                         newNodes.add(0, newNode);
+                        inserted = true;
                     } else {
                         for (int i = 0; i < keys.size(); i++) {
                             if (keys.get(i) > key) {
-                                keys.add(i, key);
+                                keys.add(i, newKey);
                                 newNodes.add(i + 1, newNode);
                                 inserted = true;
                                 break;
@@ -357,7 +325,7 @@ public class BPlusTree {
                     }
 
                     if (!inserted) {
-                        keys.add(key);
+                        keys.add(newKey);
                         newNodes.add(newNode);
                     }
 
@@ -365,9 +333,7 @@ public class BPlusTree {
                     int splitIndex = (maxKeyNumber + 2) / 2;
                     internalNode.setRecords(new ArrayList<>(keys.subList(0, splitIndex - 1)), new ArrayList<>(newNodes.subList(0, splitIndex)));
 
-                    InternalNode newSiblingInternalNode = new InternalNode(keys.subList(splitIndex, maxKeyNumber + 1), newNodes.subList(splitIndex, maxKeyNumber + 2), this.maxKeyNumber);
-
-                    return newSiblingInternalNode;
+                    return new InternalNode(keys.subList(splitIndex, maxKeyNumber + 1), newNodes.subList(splitIndex, maxKeyNumber + 2), this.maxKeyNumber);
                 } else {
                     internalNode.insert(newNode);
                 }
@@ -433,9 +399,6 @@ public class BPlusTree {
     }
 
     public void deleteRecord(int numVotes) throws Exception {
-        if (numVotes == 86) {
-            System.out.println("x");
-        }
         Node root = getRoot();
 
         if (root == null) {
