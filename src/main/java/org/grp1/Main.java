@@ -15,8 +15,6 @@ import org.grp1.util.TSVReader;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
-//TIP To <b>Run</b> code, press <shortcut actionId="Run"/> or
-// click the <icon src="AllIcons.Actions.Execute"/> icon in the gutter.
 public class Main {
 
     private static Disk disk;
@@ -145,16 +143,34 @@ public class Main {
 
     public static void runExperiment5() {
         System.out.println("----------Running experiment 5----------");
-        context.startTimer();
+        index.resetAccessCount();
+
         try {
-            //index.deleteRecord(1000);
+            context.startTimer();
+            index.deleteRecord(1000);
+            context.endTimer();
         } catch (Exception e) {
             System.out.println(e.getMessage());
         }
-        context.endTimer();
+
         long indexDeleteTime = context.getElapsedTime(TimeUnit.NANOSECONDS);
-        System.out.println(index.getRecordsByNumVotes(1000).size());
+
+        try {
+            context.startTimer();
+            disk.deleteRecordsByNumVotes(1000);
+            context.endTimer();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        long linearDeleteTime = context.getElapsedTime(TimeUnit.NANOSECONDS);
+        // System.out.println(index.getRecordsByNumVotes(1000).size());
+
+        System.out.println("Index Node Update Count: " + BPlusTree.numNodes);
+        System.out.println("Number of level updated: " + BPlusTree.numLevels);
+        index.resetAccessCount();
         System.out.println("Index Delete Time (ns): " + indexDeleteTime);
+        System.out.println("Linear Delete Block Access Count: " + disk.getAccessCount());
+        System.out.println("Linear Delete Time (ns): " + linearDeleteTime);
 
         /*context.startTimer();
         try {

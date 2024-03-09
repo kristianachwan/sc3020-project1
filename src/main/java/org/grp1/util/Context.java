@@ -36,4 +36,10 @@ public class Context {
         return unit.convert((endTime - startTime), TimeUnit.NANOSECONDS);
     }
 
+    public void reset() {
+        this.startTime = 0;
+        this.endTime = 0;
+        this.count = 0;
+    }
+
 }
