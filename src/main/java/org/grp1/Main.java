@@ -85,13 +85,13 @@ public class Main {
         long startTimeLinear = System.nanoTime();
         List<Record> recordsDisk = disk.getRecordsByNumVotes(500);
         long endTimeLinear = System.nanoTime();
-        double linearSearchTime = ((double) endTimeLinear - startTimeLinear) / 1000;
+        double linearSearchTime = ((double) endTimeLinear - startTimeLinear) / 1000.0;
 
         // calculate time for index search
         long startTimeIndex = System.nanoTime();
         List<Record> votes500 = index.getRecordsByNumVotes(500);
         long endTimeIndex = System.nanoTime();
-        double indexSearchTime = ((double) endTimeIndex - startTimeIndex) / 1000;
+        double indexSearchTime = ((double) endTimeIndex - startTimeIndex) / 1000.0;
 
         // calculate avg of 'averageRatings'
         double totalAvgRating = 0;
@@ -101,13 +101,12 @@ public class Main {
         double averageAvgRating = totalAvgRating / votes500.size();
         averageAvgRating = Double.parseDouble(String.format("%.2f", averageAvgRating));
 
-        System.out.println("Index Node Access Count: " + BPlusTree.indexNodeAccess);
-        System.out.println("Data Block Access Count: " + BPlusTree.dataBlockAccess);
+        System.out.println("Index Node Access Count: " + Context.getCount());
+        System.out.println("Data Block Access Count: " + Context.getSetCount());
         System.out.println("Average Rating: " + averageAvgRating);
         System.out.println("Index Search Time (μs): " + indexSearchTime);
         System.out.println("Linear Search Time (μs):" + linearSearchTime);
         System.out.println("Linear Search Block Access Count: " + disk.getAccessCount());
-        index.resetAccessCount();
         System.out.println("----------Ending experiment 3----------\n\n");
     }
 
@@ -117,12 +116,12 @@ public class Main {
         Context.startTimer();
         List<Record> recordsDisk = disk.getRecordsByNumVotes(30000, 50000);
         Context.endTimer();
-        double linearSearchTime = (double) Context.getElapsedTime(TimeUnit.NANOSECONDS) / 1000;
+        double linearSearchTime = ((double) Context.getElapsedTime(TimeUnit.NANOSECONDS)) / 1000.0;
 
         Context.startTimer();
         List<Record> recordsIndex = index.getRecordsByNumVotes(30000, 50000);
         Context.endTimer();
-        double indexSearchTime = (double) Context.getElapsedTime(TimeUnit.NANOSECONDS) / 1000;
+        double indexSearchTime = ((double) Context.getElapsedTime(TimeUnit.NANOSECONDS)) / 1000.0;
 
         double rating = 0;
         for (Record r : recordsIndex) {
@@ -131,8 +130,8 @@ public class Main {
         double avgRating = rating / recordsIndex.size();
         avgRating = Double.parseDouble(String.format("%.2f", avgRating));
 
-        System.out.println("Index Node Access Count: " + BPlusTree.indexNodeAccess);
-        System.out.println("Data Block Access Count: " + BPlusTree.dataBlockAccess);
+        System.out.println("Index Node Access Count: " + Context.getCount());
+        System.out.println("Data Block Access Count: " + Context.getSetCount());
         System.out.println("Average Rating: " + avgRating);
         System.out.println("Index Search Time (μs): " + indexSearchTime);
         System.out.println("Linear Search Time (μs): " + linearSearchTime);
@@ -143,7 +142,15 @@ public class Main {
 
     public static void runExperiment5() {
         System.out.println("----------Running experiment 5----------");
-        index.resetAccessCount();
+        Context.reset();
+        try {
+            Context.startTimer();
+            disk.deleteRecordsByNumVotes(1000);
+            Context.endTimer();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
         Context.reset();
         try {
             Context.startTimer();
@@ -153,39 +160,19 @@ public class Main {
             System.out.println(e.getMessage());
         }
 
-        double indexDeleteTime = (double) Context.getElapsedTime(TimeUnit.NANOSECONDS) / 1000;
+        double indexDeleteTime = ((double) Context.getElapsedTime(TimeUnit.NANOSECONDS)) / 1000.0;
 
-        try {
-            Context.startTimer();
-            disk.deleteRecordsByNumVotes(1000);
-            Context.endTimer();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        double linearDeleteTime = (double) Context.getElapsedTime(TimeUnit.NANOSECONDS) / 1000;
+
+        double linearDeleteTime = ((double) Context.getElapsedTime(TimeUnit.NANOSECONDS)) / 1000.0;
         // System.out.println(index.getRecordsByNumVotes(1000).size());
 
-        // System.out.println("Index Node Update Count: " + BPlusTree.numNodes);
-        // System.out.println("Number of level updated: " + BPlusTree.numLevels);
+        System.out.println("Index Node Update Count: " + Context.getCount());
+        System.out.println("Number of level updated: " + Context.getSetCount());
         index.printRootKeys();
         System.out.println("Index Delete Time (μs): " + indexDeleteTime);
         System.out.println("Linear Delete Time (μs): " + linearDeleteTime);
         System.out.println("Linear Delete Block Access Count: " + disk.getAccessCount());
 
-
-        /*context.startTimer();
-        try {
-            context.startTimer();
-            disk.deleteRecordsByNumVotes(1000);
-            context.endTimer();
-            long linearDeleteTime = context.getElapsedTime(TimeUnit.NANOSECONDS);
-
-            System.out.println("Linear Delete Time (ns): " + linearDeleteTime);
-            System.out.println("Linear Delete Block Access Count: " + disk.getAccessCount());
-            System.out.println("Number of Records after Delete: " + disk.getNumberOfRecords());
-        } catch (Exception e) {
-            e.printStackTrace();
-        }*/
 
         System.out.println("----------Ending experiment 5----------\n\n");
     }
