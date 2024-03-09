@@ -1,5 +1,6 @@
 package org.grp1;
 
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -86,11 +87,12 @@ public class Main {
         long indexSearchTime = (endTimeIndex - startTimeIndex);
 
         // calculate avg of 'averageRatings'
-        long totalAvgRating = 0;
+        double totalAvgRating = 0;
         for (Record record : votes500) {
             totalAvgRating += record.getAverageRating();
         }
-        long averageAvgRating = totalAvgRating / votes500.size();
+        double averageAvgRating = totalAvgRating / votes500.size();
+        averageAvgRating = Double.parseDouble(String.format("%.2f", averageAvgRating));
 
         System.out.println("Index Node Access Count: " + BPlusTree.indexNodeAccess);
         System.out.println("Data Block Access Count: " + BPlusTree.dataBlockAccess);
@@ -115,11 +117,12 @@ public class Main {
         context.endTimer();
         long indexSearchTime = context.getElapsedTime(TimeUnit.NANOSECONDS);
 
-        long rating = 0;
+        double rating = 0;
         for (Record r : recordsIndex) {
             rating += r.getAverageRating();
         }
-        long avgRating = rating / recordsIndex.size();
+        double avgRating = rating / recordsIndex.size();
+        avgRating = Double.parseDouble(String.format("%.2f", avgRating));
 
         System.out.println("Index Node Access Count: " + BPlusTree.indexNodeAccess);
         System.out.println("Data Block Access Count: " + BPlusTree.dataBlockAccess);
