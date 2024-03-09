@@ -146,6 +146,8 @@ public class BPlusTree {
             if (idx == -1) return false;
 
             leafNode.delete(idx);
+            numNodes++;
+            numLevels++;
 
             return true;
         } else {
@@ -156,9 +158,12 @@ public class BPlusTree {
             int minimumNoOfChild = childNode instanceof LeafNode ? maxKeyNumber / 2 : (maxKeyNumber + 1) / 2;
 
             if (!recursiveDeleteNode(childNode, numVotes)) {
+                // Child node does not change
                 if (index > 0) internalNode.updateKey(index);
                 return false;
             }
+            numNodes++;
+            numLevels++;
 
             if (index > 0) internalNode.updateKey(index - 1);
             else internalNode.updateKey(index + 1);
@@ -176,13 +181,13 @@ public class BPlusTree {
                     internalNode.getChildByIndex(index - 1).size() > maxKeyNumber / 2 + 1 ||
                             internalNode.getChildByIndex(index - 1) instanceof InternalNode && internalNode.getChildByIndex(index - 1).size() > maxKeyNumber / 2
             )) {
-                // Single node access here
+                numNodes++;
                 siblingChild = internalNode.getChildByIndex(index - 1);
             } else if (index < internalNode.size() - 1 && (
                     internalNode.getChildByIndex(index + 1).size() > maxKeyNumber / 2 + 1 ||
                             internalNode.getChildByIndex(index + 1) instanceof InternalNode && internalNode.getChildByIndex(index - 1).size() > maxKeyNumber / 2
             )) {
-                // Double node access here
+                numNodes += 2;
                 siblingChild = internalNode.getChildByIndex(index + 1);
                 isLeftSibling = false;
             }
