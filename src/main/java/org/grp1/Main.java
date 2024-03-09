@@ -1,19 +1,18 @@
 package org.grp1;
 
-import java.text.DecimalFormat;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.TimeUnit;
-
 import org.grp1.constant.Config;
 import org.grp1.exception.LeafFullException;
+import org.grp1.index.BPlusTree;
+import org.grp1.model.Address;
 import org.grp1.model.Record;
+import org.grp1.storage.Block;
 import org.grp1.storage.Disk;
 import org.grp1.util.Context;
 import org.grp1.util.RecordParser;
 import org.grp1.util.TSVReader;
-import org.grp1.index.BPlusTree;
-import org.grp1.index.InternalNode;
+
+import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 //TIP To <b>Run</b> code, press <shortcut actionId="Run"/> or
 // click the <icon src="AllIcons.Actions.Execute"/> icon in the gutter.
@@ -26,7 +25,7 @@ public class Main {
     public static void main(String[] args) {
         System.out.println("Setting up the disk...");
         disk = new Disk(Config.DISK_SIZE, Config.BLOCK_SIZE, Config.RECORD_SIZE);
-        index = new BPlusTree(Config.TREE_NODE_SIZE);
+        index = new BPlusTree(Config.TREE_NODE_SIZE, disk);
         context = new Context();
         runExperiment1();
         runExperiment2();
@@ -54,10 +53,14 @@ public class Main {
         System.out.println("----------Running experiment 2----------");
 
         try {
-            for (Record r : disk.getRecords()) {
-                if (r != null) {
-                    //System.out.println(r.getNumVotes());
-                    index.insertRecord(r);
+            for (int i = 0; i < disk.getOccupiedBlock(); i++) {
+                Block block = disk.getBlock(i);
+                int numOfRecords = block.getNumberOfRecords();
+                for (int j = 0; j < numOfRecords; j++) {
+                    Address address = new Address(i, j);
+                    int key = disk.getRecordByPointer(address).getNumVotes();
+
+                    index.insertAddress(address, key);
                 }
             }
         } catch (LeafFullException e) {
@@ -78,7 +81,7 @@ public class Main {
         long startTimeLinear = System.nanoTime();
         List<Record> recordsDisk = disk.getRecordsByNumVotes(500);
         long endTimeLinear = System.nanoTime();
-        long linearSearchTime =  (endTimeLinear - startTimeLinear);
+        long linearSearchTime = (endTimeLinear - startTimeLinear);
 
         // calculate time for index search
         long startTimeIndex = System.nanoTime();
