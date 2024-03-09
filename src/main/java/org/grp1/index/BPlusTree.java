@@ -2,8 +2,11 @@ package org.grp1.index;
 
 import org.grp1.exception.LeafFullException;
 import org.grp1.model.Record;
+
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Queue;
 
 public class BPlusTree {
 
@@ -402,16 +405,22 @@ public class BPlusTree {
 
     public int calculateNumLevels() {
         Node root = getRoot();
+        int height = 0;
         if (root == null) {
-            return 0;
+            return height;
         }
 
-        int height = 1;
-        Node current = root;
+        Queue<Node> queue = new LinkedList<>();
+        queue.add(root);
 
-        while (!(current instanceof LeafNode)) {
-            InternalNode internalNode = (InternalNode) current;
-            current = internalNode.getChild(0);
+        while (!queue.isEmpty()) {
+            int levelLength = queue.size();
+            for (int i = 0; i < levelLength; i++) {
+                Node node = queue.remove();
+                if (node instanceof InternalNode) {
+                    queue.addAll(((InternalNode) node).getChildren());
+                }
+            }
             height++;
         }
 
