@@ -1,5 +1,7 @@
 package org.grp1;
 
+import java.util.ArrayList;
+
 public class Record {
     private String tconst;
     private float averageRating;
@@ -34,4 +36,5 @@ public class Record {
     public void setTconst(String tconst) {
         this.tconst = tconst;
     }
+
 }

@@ -40,12 +40,16 @@ public class BPlusTree {
     public ArrayList<Record> getRecordsByNumVotes(int numVotes) {
         Node node = getRoot();
         if (node == null) {
+            System.out.println("1. The number of index nodes the process accesses: 0");
             return new ArrayList<>();
         }
+
+        int indexNodeCount = 0;
 
         while (!(node instanceof LeafNode leafNode)) {
             InternalNode internalNode = (InternalNode) node;
             node = internalNode.getChild(numVotes);
+            indexNodeCount++;
         }
 
         ArrayList<Record> records = new ArrayList<>();
@@ -63,6 +67,7 @@ public class BPlusTree {
             leafNode = leafNode.getNext();
         }
 
+        System.out.println("1. The number of index nodes the process accesses: " + indexNodeCount);
         return records;
     }
 
@@ -120,8 +125,9 @@ public class BPlusTree {
                 ArrayList<Integer> newKeyList = leafNode.splitKeyList((leafNode.size() + 2) / 2 + (idx <= leafNode.size() / 2 ? -1 : 0));
 
                 LeafNode newLeafNode = new LeafNode(leafNode, leafNode.getNext(), null, newKeyList, newRecordList, this.maxKeyNumber);
+                this.numNodes++;
 
-                // Modify the old leafnode
+                // Modify the old leaf node
                 if (leafNode.getNext() != null) {
                     leafNode.getNext().setPrevious(newLeafNode);
                 }
@@ -148,7 +154,7 @@ public class BPlusTree {
             Node newNode = recursiveInsertNode(child, newRecord);
 
             if (newNode != null) {
-                this.numNodes++;
+//                this.numNodes++;
                 int newNodeKey = getNodeFirstKey(newNode);
                 if (internalNode.isFull()) {
 
@@ -162,6 +168,7 @@ public class BPlusTree {
                     newKeyList.remove(0);
 
                     newSiblingInternalNode = new InternalNode(newKeyList, newNodeList, this.maxKeyNumber);
+                    this.numNodes++;
 
                     if (childIndex + 1 <= (internalNode.size() + 2) / 2) {
                         internalNode.insertNode(newNode, newNodeKey);
@@ -237,8 +244,6 @@ public class BPlusTree {
 
             this.sentinelNode.setChildren(sentinelKeyList, sentinelNodeList);
         }
-
-
     }
 
     public int getMaxKeyNumber() {
@@ -274,7 +279,8 @@ public class BPlusTree {
 
 
     public int getNumberOfLevels() {
-        return calculateLevels(sentinelNode);
+        Node root = getRoot();
+        return calculateLevels(root);
     }
 
     private int calculateLevels(Node node) {

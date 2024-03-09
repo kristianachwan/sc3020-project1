@@ -50,13 +50,16 @@ public class Main {
 
     public static void runExperiment3() {
         System.out.println("----------Running experiment 3----------");
+        long startTime = System.nanoTime();
         ArrayList<Record> Votes500 = bPlusTree.getRecordsByNumVotes(500);
-        System.out.println(Votes500);
-        System.out.println("The number of index nodes the process accesses: ");
-        System.out.println("The number of data blocks the process accesses: ");
-        System.out.println("The average of 'averageRatings' of the records that are returned: ");
-        System.out.println("The running time of the retrieval process: ");
-        System.out.println("the number of data blocks that would be accessed by a brute-force linear scan method: ");
+        long endTime = System.nanoTime();
+        long duration = (endTime - startTime);  //in milliseconds.
+//        System.out.println(Votes500);
+        System.out.println("2. The number of data blocks the process accesses: ");
+        System.out.println("3. The average of 'averageRatings' of the records that are returned: ");
+        System.out.println("4. The running time of the retrieval process: " + duration + " nanoseconds");
+        // Run a linear search on the leaf node level.
+        System.out.println("5. the number of data blocks that would be accessed by a brute-force linear scan method: ");
         System.out.println("----------Ending experiment 3----------\n\n");
     }
 
