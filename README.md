@@ -36,7 +36,7 @@ project.
 Alternatively, you can use the pre-compiled .jar file in `jar/sc3020-project1.jar` to run this program instead from the
 project root (`sc3020-project1`).
 
-To run the .jar file (requires JDK 21), run the following command:
+To run the .jar file (requires JDK 21), run the following command from the project root:
 
 ```bash
 java -jar jar/sc3020-project1.jar
