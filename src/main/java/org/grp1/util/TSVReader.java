@@ -8,8 +8,14 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class TSVReader {
+    /**
+     * The function to read the TSV file
+     *
+     * @param filePath The file path
+     * @return The list of unparsed strings from the records file
+     */
 
-    public static List<String> ReadTSVFile(String filePath) throws FileNotFoundException, IOException {
+    public static List<String> ReadTSVFile(String filePath) throws IOException {
 
         List<String> result = new ArrayList<>();
 
