@@ -1,1 +1,7 @@
+org.grp1
+org.grp1.constant
+org.grp1.exception
+org.grp1.index
+org.grp1.model
+org.grp1.storage
 org.grp1.util
