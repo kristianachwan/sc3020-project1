@@ -4,7 +4,7 @@
 
 This project focuses on implementing a relational database at a basic level. Initially, we implemented a disk storage
 system to simulate how data is stored on a disk. Following that, we introduced a B+ tree for data indexing to enhance
-the efficiency of data search and retrieval.
+the efficiency of data search and retrieval. You can access our comprehensive Javadocs [here](https://kristianachwan.github.io/sc3020-project1/).
 
 #### Team members:
 
